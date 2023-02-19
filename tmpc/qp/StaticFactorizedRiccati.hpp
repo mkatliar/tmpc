@@ -93,7 +93,7 @@ namespace tmpc
                     blazefeo::trmmRightLower(1., trans(qp.BA(*e)), vertexData_[target(*e, graph_)].Lcal(), transD_);
 
                     // Alg 1 line 5, 8
-                    blazefeo::syrk_ln(1., transD_, 1., qp.H(u), RSQ_tilde);
+                    blazefeo::syrkLower(1., transD_, 1., qp.H(u), RSQ_tilde);
 
                     // ---------------------------
                     // Process remaining out edges
@@ -104,7 +104,7 @@ namespace tmpc
                         blazefeo::trmmRightLower(1., trans(qp.BA(*e)), vertexData_[target(*e, graph_)].Lcal(), transD_);
 
                         // Alg 1 line 8
-                        blazefeo::syrk_ln(1., transD_, 1., RSQ_tilde, RSQ_tilde);
+                        blazefeo::syrkLower(1., transD_, 1., RSQ_tilde, RSQ_tilde);
                     }
 
                     // Alg 1 line 10
@@ -131,7 +131,7 @@ namespace tmpc
                     // Alg 2 line 5
                     blaze::StaticVector<Real, NU> r_tilde = qp.r(u);
                     blaze::StaticVector<Real, NX> q_tilde = qp.q(u);
-                                    
+
                     for (auto e : out_edges(u, graph_))
                     {
                         auto const v = target(e, graph_);
@@ -147,10 +147,10 @@ namespace tmpc
                         r_tilde += trans(qp.B(e)) * Pb_p;
                         q_tilde += trans(qp.A(e)) * Pb_p;
                     }
-                    
+
                     // Alg 2 line 10
                     blazefeo::trsvLeftLower(vd_u.Lambda(), r_tilde, vd_u.l_);
-                    
+
                     // Alg 2 line 11
                     vd_u.p_ = q_tilde - vd_u.L_trans() * vd_u.l_;
                 }
@@ -168,7 +168,7 @@ namespace tmpc
                 if (in_degree(u, graph_) == 0)
                 {
                     // Root vertex.
-                    
+
                     // Solve P*x+p=0 by using Cholesky factor of P:
                     // \mathcal{L}*(\mathcal{L}^T*x)=-p
                     blazefeo::trsvLeftLower(vd_u.Lcal(), -vd_u.p_, vd_u.p_);
@@ -214,7 +214,7 @@ namespace tmpc
             // Fortran-like) order, the better performance in matrix-matrix
             // multiplications is obtained when the left matrix is transposed
             // and the right one is not."
-            
+
             // LL = [\Lambda, L;
             //       L', \mathcal{L}]
             blaze::LowerMatrix<blaze::StaticMatrix<Real, NX + NU, NX + NU, blaze::columnMajor>> LL_;
