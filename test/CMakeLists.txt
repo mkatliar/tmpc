@@ -3,7 +3,6 @@
 #
 find_package(GTest 1.9.0 REQUIRED)
 find_package(Threads REQUIRED)    # required for gtest
-find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 
 # ~~~~~~~~~~ Our tests ~~~~~~~~~~~~~~
@@ -11,7 +10,7 @@ add_executable(test-tmpc
     ElementGroupTest.cpp
 
     # property_map/VectorPropertyMapTest.cpp
-    
+
     ocp/CondensedSizeTest.cpp
     ocp/OcpTreeTest.cpp
     ocp/DynamicOcpSizeTest.cpp
