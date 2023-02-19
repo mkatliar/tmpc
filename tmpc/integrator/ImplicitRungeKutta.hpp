@@ -17,7 +17,7 @@ namespace tmpc
 	/**
 	 * \brief Implicit Runge-Kutta integrator.
 	 * \ingroup integrators
-	 * 
+	 *
 	 */
 	template <typename Real>
 	class ImplicitRungeKutta
@@ -45,19 +45,57 @@ namespace tmpc
 		}
 
 
+		/**
+		 * @brief Integrate a DAE over a time interval.
+		 *
+		 * @tparam DAE DAE type
+		 * @tparam VT1 initial state vector type
+		 * @tparam VT2 control input vector type
+		 * @tparam VT3 final state vector type
+		 *
+		 * @param dae DAE functor. It has the following signature:
+		 * 		dae(t, xdot, x, z, u, f, Jxdot, Jx, Jz);
+		 *		where t, xdot, x, z, u are input arguments,
+		 *		f, Jxdot, Jx, Jz are output arguments.
+		 * @param t0 time at which integration starts
+		 * @param h time interval for integration
+		 * @param x0 initial state
+		 * @param u control input
+		 * @param xf final state
+		 */
 		template <typename DAE, typename VT1, typename VT2, typename VT3>
 		void operator()(DAE const& dae, Real t0, Real h,
-			blaze::Vector<VT1, blaze::columnVector> const& x0, 
+			blaze::Vector<VT1, blaze::columnVector> const& x0,
 			blaze::Vector<VT2, blaze::columnVector> const& u,
 			blaze::Vector<VT3, blaze::columnVector>& xf) const
 		{
-			(*this)(dae, t0, h, ~x0, ~u, ~xf, [] (size_t, auto const&, auto const&, auto const&) {});
+			(*this)(dae, t0, h, *x0, *u, *xf, [] (size_t, auto const&, auto const&, auto const&) {});
 		}
 
 
+		/**
+		 * @brief Integrate a DAE over a time interval.
+		 *
+		 * @tparam DAE DAE type
+		 * @tparam VT1 initial state vector type
+		 * @tparam VT2 control input vector type
+		 * @tparam VT3 final state vector type
+		 * @tparam Newton solver monitor object type
+		 *
+		 * @param dae DAE functor. It has the following signature:
+		 * 		dae(t, xdot, x, z, u, f, Jxdot, Jx, Jz);
+		 *		where t, xdot, x, z, u are input arguments,
+		 *		f, Jxdot, Jx, Jz are output arguments.
+		 * @param t0 time at which integration starts
+		 * @param h time interval for integration
+		 * @param x0 initial state
+		 * @param u control input
+		 * @param xf final state
+		 * @param monitor Newton solver monitor object
+		 */
 		template <typename DAE, typename VT1, typename VT2, typename VT3, typename Monitor>
 		void operator()(DAE const& dae, Real t0, Real h,
-			blaze::Vector<VT1, blaze::columnVector> const& x0, 
+			blaze::Vector<VT1, blaze::columnVector> const& x0,
 			blaze::Vector<VT2, blaze::columnVector> const& u,
 			blaze::Vector<VT3, blaze::columnVector>& xf,
 			Monitor monitor) const
@@ -76,17 +114,17 @@ namespace tmpc
 			if (!warmStart_)
 				reset(kz_);
 
-			newtonSolver_(newtonResidual(dae, t0, h, ~x0, ~u), kz_, kz_, monitor);
+			newtonSolver_(newtonResidual(dae, t0, h, *x0, *u), kz_, kz_, monitor);
 
 			// Calculating the value of the integral
-			~xf = x0;
+			*xf = x0;
 			for (size_t i = 0; i < m_; ++i)
-				~xf += h * b_[i] * subvector(kz_, i * nw_, nx_);
+				*xf += h * b_[i] * subvector(kz_, i * nw_, nx_);
 		}
 
-		
+
 		template <
-			typename DAE, 
+			typename DAE,
 			typename DAE_S,
 			typename VT1,
 			typename MT1, bool SO1,
@@ -94,7 +132,7 @@ namespace tmpc
 			typename VT3,
 			typename MT2, bool SO2>
 		void operator()(
-			DAE const& dae, 
+			DAE const& dae,
 			DAE_S const& dae_s,
 			Real t0, Real h,
 			blaze::Vector<VT1, blaze::columnVector> const& x0,
@@ -119,27 +157,27 @@ namespace tmpc
 
 			// Calculate implicit DAE/DAE solution k and its sensitivities
 			newtonSolver_(
-				newtonResidual(dae, t0, h, ~x0, ~u),
-				newtonParamSensitivity(dae_s, t0, h, ~x0, ~Sx, ~u),
+				newtonResidual(dae, t0, h, *x0, *u),
+				newtonParamSensitivity(dae_s, t0, h, *x0, *Sx, *u),
 				kz_, kz_, K_);
 
 			// Calculating sensitivities of intermediate state variables.
 			for (size_t i = 0; i < m_; ++i)
 			{
-				S(i) = ~Sx;
-				
+				S(i) = *Sx;
+
 				for (size_t j = 0; j < m_; ++j)
 					S(i) += h * A_(i, j) * submatrix(K_, j * nw_, 0, nx_, nx_ + nu_);
 			}
 
 			// Calculating the value of the integral and final state sensitivities
-			~xf = x0;
-			~Sf = ~Sx;
+			*xf = x0;
+			*Sf = *Sx;
 
 			for (size_t i = 0; i < m_; ++i)
 			{
-				~xf += h * b_[i] * subvector(kz_, i * nw_, nx_);
-				~Sf += h * b_[i] * submatrix(K_, i * nw_, 0, nx_, nx_ + nu_);
+				*xf += h * b_[i] * subvector(kz_, i * nw_, nx_);
+				*Sf += h * b_[i] * submatrix(K_, i * nw_, 0, nx_, nx_ + nu_);
 			}
 		}
 
@@ -176,18 +214,18 @@ namespace tmpc
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid size of u"));
 
 			// Calculate the final state value and its sensitivities
-			(*this)(dae, dae_s, t0, h, ~x0, ~Sx, ~u, ~xf, ~Sf);
+			(*this)(dae, dae_s, t0, h, *x0, *Sx, *u, *xf, *Sf);
 
 			// Calculate the integral of the Lagrange term, its gradient, and its Gauss-Newton Hessian
 			for (size_t i = 0; i < m_; ++i)
 			{
 				// Calculate the residual and its sensitivities at i-th intermediate point
-				res(t0 + h * c_[i], s(i), S(i), z(i), Z(i), ~u, r_, Jr_);
+				res(t0 + h * c_[i], s(i), S(i), z(i), Z(i), *u, r_, Jr_);
 
 				// Update the cost, its gradient, and its Gauss-Newton Hessian
 				l += h * b_[i] * sqrNorm(r_) / 2.;
-				~g += h * b_[i] * trans(Jr_) * r_;
-				~H += h * b_[i] * trans(Jr_) * Jr_;
+				*g += h * b_[i] * trans(Jr_) * r_;
+				*H += h * b_[i] * trans(Jr_) * Jr_;
 			}
 		}
 
@@ -249,10 +287,10 @@ namespace tmpc
 
 		// Intermediate state variables
 		mutable blaze::DynamicVector<Real, blaze::columnVector> s_;
-		
+
 		// Sensitivity of s w.r.t. (x,u)
 		mutable blaze::DynamicMatrix<Real> S_;
-		
+
 		mutable blaze::DynamicMatrix<Real, blaze::columnMajor> df_dx_;
 		mutable blaze::DynamicVector<Real, blaze::columnVector> kz_;
 
@@ -280,7 +318,7 @@ namespace tmpc
 			{
 				for (size_t i = 0; i < m_; ++i)
 				{
-					s(i) = ~x0;
+					s(i) = *x0;
 					for (size_t j = 0; j < m_; ++j)
 						s(i) += h * A_(i, j) * subvector(kz, j * nw_, nx_);
 
@@ -289,7 +327,7 @@ namespace tmpc
 					auto f = subvector(r, i * nw_, nw_);
 					auto Jxdot = submatrix(J, i * nw_, i * nw_, nw_, nx_);
 					auto Jz = submatrix(J, i * nw_, i * nw_ + nx_, nw_, nz_);
-					dae(t0 + c_[i] * h, k_i, s(i), z_i, ~u, f, Jxdot, df_dx_, Jz);
+					dae(t0 + c_[i] * h, k_i, s(i), z_i, *u, f, Jxdot, df_dx_, Jz);
 
 					for (size_t j = 0; j < m_; ++j)
 					{
@@ -304,7 +342,7 @@ namespace tmpc
 						else
 						{
 							Jx_ij += h * A_(i, j) * df_dx_;
-						}						
+						}
 					}
 				}
 			};
@@ -333,7 +371,7 @@ namespace tmpc
 					auto const k_i = subvector(kz, i * nw_, nx_);
 					auto const z_i = subvector(kz, i * nw_ + nx_, nz_);
 					auto dfi_dxu = submatrix(df_dp, i * nw_, 0, nw_, nx_ + nu_);
-					dae_s(t0 + c_[i] * h, k_i, s(i), ~Sx, z_i, ~u, dfi_dxu);
+					dae_s(t0 + c_[i] * h, k_i, s(i), *Sx, z_i, *u, dfi_dxu);
 				}
 			};
 		}

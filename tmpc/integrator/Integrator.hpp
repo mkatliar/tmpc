@@ -39,18 +39,18 @@ namespace tmpc
 
     template <typename I, typename DE, typename Real, typename VT1, typename VT2, typename VT3>
     inline void integrate(
-        Integrator<I> const& integrator, 
+        Integrator<I> const& integrator,
         DE const& de,
         Real t0, Real h, size_t num_integrator_steps,
-        blaze::Vector<VT1, blaze::columnVector> const& x0, 
+        blaze::Vector<VT1, blaze::columnVector> const& x0,
         blaze::Vector<VT2, blaze::columnVector> const& u,
         blaze::Vector<VT3, blaze::columnVector>& xf)
     {
         // Actual integrator step
         Real const integrator_step = h / num_integrator_steps;
 
-        ~xf = ~x0;
+        *xf = *x0;
         for (size_t i = 0; i < num_integrator_steps; ++i)
-            (~integrator)(de, t0 + integrator_step * i, integrator_step, ~xf, ~u, ~xf);
+            (~integrator)(de, t0 + integrator_step * i, integrator_step, *xf, *u, *xf);
     }
 }

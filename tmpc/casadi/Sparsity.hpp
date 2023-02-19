@@ -56,14 +56,14 @@ namespace tmpc :: casadi
         template <typename MT, bool SO>
         inline void decompress(casadi_real const * data, blaze::Matrix<MT, SO>& m) const
         {
-            if ((~m).rows() != rows_ || (~m).columns() != columns_)
+            if ((*m).rows() != rows_ || (*m).columns() != columns_)
                 TMPC_THROW_EXCEPTION(std::invalid_argument("Matrix size does not match the sparsity pattern"));
 
             casadi_int ind = 0;
             for (size_t j = 0; j < columns_; ++j)
             {
                 for (; ind < colind_[j + 1]; ++ind)
-                    (~m)(rowind_[ind], j) = data[ind];
+                    (*m)(rowind_[ind], j) = data[ind];
             }
         }
 
@@ -78,7 +78,7 @@ namespace tmpc :: casadi
             for (size_t j = 0; j < columns_; ++j)
             {
                 for (; ind < colind_[j + 1]; ++ind)
-                    (~v)[rowind_[ind]] = data[ind];
+                    (*v)[rowind_[ind]] = data[ind];
             }
         }
 
@@ -93,7 +93,7 @@ namespace tmpc :: casadi
             for (size_t j = 0; j < columns_; ++j)
             {
                 for (; ind < colind_[j + 1]; ++ind)
-                    (~v)[j] = data[ind];
+                    (*v)[j] = data[ind];
             }
         }
 
@@ -106,14 +106,14 @@ namespace tmpc :: casadi
         template <typename MT, bool SO>
         inline void compress(blaze::Matrix<MT, SO> const& m, casadi_real * data) const
         {
-            if ((~m).rows() != rows_ || (~m).columns() != columns_)
+            if ((*m).rows() != rows_ || (*m).columns() != columns_)
                 TMPC_THROW_EXCEPTION(std::invalid_argument("Matrix size does not match the sparsity pattern"));
 
             casadi_int ind = 0;
             for (size_t j = 0; j < columns_; ++j)
             {
                 for (; ind < colind_[j + 1]; ++ind)
-                    data[ind] = (~m)(rowind_[ind], j);
+                    data[ind] = (*m)(rowind_[ind], j);
             }
         }
 
@@ -128,7 +128,7 @@ namespace tmpc :: casadi
             for (size_t j = 0; j < columns_; ++j)
             {
                 for (; ind < colind_[j + 1]; ++ind)
-                    data[ind] = (~v)[rowind_[ind]];
+                    data[ind] = (*v)[rowind_[ind]];
             }
         }
 
@@ -143,7 +143,7 @@ namespace tmpc :: casadi
             for (size_t j = 0; j < columns_; ++j)
             {
                 for (; ind < colind_[j + 1]; ++ind)
-                    data[ind] = (~v)[j];
+                    data[ind] = (*v)[j];
             }
         }
 

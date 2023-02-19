@@ -8,7 +8,7 @@ namespace tmpc :: testing
     TEST(NewtonSolverTest, testSolve)
     {
         size_t constexpr NX = 2;
-        
+
         using Real = double;
         using Vec = blaze::StaticVector<Real, NX, blaze::columnVector>;
         using Mat = blaze::StaticMatrix<Real, NX, NX>;
@@ -19,12 +19,12 @@ namespace tmpc :: testing
         // Define the equation and its Jacobian
         auto fun = [] (auto const& x, auto& f, auto& J)
         {
-            ~f = {
+            *f = {
                 pow(x[0], 2) + pow(x[1], 3) - 1.,
                 2. * x[0] + 3. * pow(x[1], 2) - 4.
             };
 
-            ~J = {
+            *J = {
                 {2. * x[0], 3. * pow(x[1], 2)},
                 {2., 6. * x[1]}
             };
@@ -36,7 +36,7 @@ namespace tmpc :: testing
         // Find the solution
         Vec x_star;
         solver(fun, x0, x_star);
-        
+
         // Check the solution
         TMPC_EXPECT_APPROX_EQ(x_star, (Vec {-2.48345, -1.72886}), 1.e-5, 0.);
 
@@ -64,18 +64,18 @@ namespace tmpc :: testing
         using MatXX = blaze::StaticMatrix<Real, NX, NX, blaze::columnMajor>;
         using MatXP = blaze::StaticMatrix<Real, NX, NP, blaze::columnMajor>;
         Real const p = 2.;
-        
+
         // Define the equation and its Jacobian
         auto fun = [p] (auto const& x, auto& f, auto& J)
         {
-            ~f = {pow(x[0], 2) - p};
-            ~J = {{2. * x[0]}};
+            *f = {pow(x[0], 2) - p};
+            *J = {{2. * x[0]}};
         };
 
         // The derivative of the equation w.r.t. the parameter
         auto dfdp = [] (auto const& x, auto& df_dp)
         {
-            ~df_dp = {{-1.}};
+            *df_dp = {{-1.}};
         };
 
         // Newton solver
@@ -88,7 +88,7 @@ namespace tmpc :: testing
         VecX x_star;
         MatXX x_sens;
         solver(fun, dfdp, x0, x_star, x_sens);
-        
+
         // Check the solution
         TMPC_EXPECT_APPROX_EQ(x_star, (VecX {sqrt(p)}), 1.e-10, 0.);
 
@@ -118,25 +118,25 @@ namespace tmpc :: testing
         using VecP = blaze::StaticVector<Real, NP, blaze::columnVector>;
         using MatXX = blaze::StaticMatrix<Real, NX, NX, blaze::columnMajor>;
         using MatXP = blaze::StaticMatrix<Real, NX, NP, blaze::columnMajor>;
-        
+
         MatXX const A {
             {1., 2.},
             {-3., 4.}
         };
 
         VecP const p {1., 0.5};
-        
+
         // Define the equation and its Jacobian
         auto fun = [&A, &p] (auto const& x, auto& f, auto& J)
         {
-            ~f = A * ~x - p;
-            ~J = A;
+            *f = A * *x - p;
+            *J = A;
         };
 
         // The derivative of the equation w.r.t. the parameter
         auto dfdp = [p] (auto const& x, auto& df_dp)
         {
-            ~df_dp = -blaze::IdentityMatrix<Real>(NX);
+            *df_dp = -blaze::IdentityMatrix<Real>(NX);
         };
 
         // Newton solver
@@ -149,7 +149,7 @@ namespace tmpc :: testing
         VecX x_star;
         MatXX x_sens;
         solver(fun, dfdp, x0, x_star, x_sens);
-        
+
         // Check the solution
         TMPC_EXPECT_APPROX_EQ(x_star, evaluate(inv(A) * p), 1.e-10, 0.);
 
@@ -185,11 +185,11 @@ namespace tmpc :: testing
     /// NOTE:
     /// The test reproduces the issue https://gitlab.syscop.de/mikhail.katliar/tmpc/issues/52
     /// and is disabled until the issue is fixed.
-    /// 
+    ///
     TEST(NewtonSolverTest, DISABLED_testRosenbrockLineSearch)
     {
         size_t constexpr NX = 2;
-        
+
         using Real = double;
         using Vec = blaze::StaticVector<Real, NX, blaze::columnVector>;
         using Mat = blaze::StaticMatrix<Real, NX, NX>;
@@ -228,17 +228,17 @@ namespace tmpc :: testing
             [&r_prev] (size_t iter, auto const& x, auto const& r, auto const& J)
             {
                 for (size_t i = 0; i < NX; ++i)
-                    EXPECT_LT(abs(r[i]), abs(r_prev[i])) 
+                    EXPECT_LT(abs(r[i]), abs(r_prev[i]))
                         << " residual element " << i << " non-decreasing on iteration " << iter;
                 r_prev = r;
             }
         );
-        
+
         // Check the solution
         TMPC_EXPECT_APPROX_EQ(x_star, (Vec {1., 1.}), 1.e-10, 0.);
     }
-	
-	
+
+
     /// @brief Solve the Rosenbrock problem https://en.wikipedia.org/wiki/Rosenbrock_function
     /// for multiple random initial points.
     ///
@@ -254,7 +254,7 @@ namespace tmpc :: testing
     TEST(NewtonSolverTest, testRosenbrockMultipleInitialPoints)
     {
         size_t constexpr NX = 2;
-        
+
         using Real = double;
         using Vec = blaze::StaticVector<Real, NX, blaze::columnVector>;
         using Mat = blaze::StaticMatrix<Real, NX, NX>;
@@ -296,7 +296,7 @@ namespace tmpc :: testing
             Vec x_star;
             ASSERT_NO_THROW(solver(fun, x0, x_star))
                 << " at starting point " << trans(x0);
-            
+
             // Check the solution
             TMPC_EXPECT_APPROX_EQ(x_star, x_true, 1e-9, 0.)
                 << " the difference is " << trans(x_star - x_true);

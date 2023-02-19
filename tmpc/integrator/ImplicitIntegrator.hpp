@@ -35,7 +35,7 @@ namespace tmpc
         ImplicitIntegrator<I> const& integrator,
         DAE const& dae,
         DAE_S const& dae_s,
-        Real t0, Real h, size_t num_integrator_steps, 
+        Real t0, Real h, size_t num_integrator_steps,
         blaze::Vector<VT1, blaze::columnVector> const& x0,
         blaze::Matrix<MT1, SO1> const& Sx,
         blaze::Vector<VT2, blaze::columnVector> const& u,
@@ -45,11 +45,11 @@ namespace tmpc
         // Actual integrator step
         Real const integrator_step = h / num_integrator_steps;
 
-        ~xf = ~x0;
-        ~Sf = ~Sx;
+        *xf = *x0;
+        *Sf = *Sx;
 
         for (size_t i = 0; i < num_integrator_steps; ++i)
-            (~integrator)(dae, dae_s, t0 + integrator_step * i, integrator_step, ~xf, ~Sf, ~u, ~xf, ~Sf);
+            (~integrator)(dae, dae_s, t0 + integrator_step * i, integrator_step, *xf, *Sf, *u, *xf, *Sf);
     }
 
 
@@ -71,8 +71,8 @@ namespace tmpc
         ImplicitIntegrator<I> const& integrator,
         DAE const& dae,
         DAE_S const& dae_s,
-        Residual const& res, 
-        Real t0, Real h, size_t num_integrator_steps, 
+        Residual const& res,
+        Real t0, Real h, size_t num_integrator_steps,
         blaze::Vector<VT1, blaze::columnVector> const& x0,
         blaze::Matrix<MT1, SO1>& S,
         blaze::Vector<VT2, blaze::columnVector> const& u,
@@ -85,10 +85,10 @@ namespace tmpc
         // Actual integrator step
         Real const integrator_step = h / num_integrator_steps;
 
-        ~xf = ~x0;
-        ~Sf = ~S;
+        *xf = *x0;
+        *Sf = *S;
 
         for (size_t i = 0; i < num_integrator_steps; ++i)
-            (~integrator)(dae, dae_s, res, t0 + integrator_step * i, integrator_step, ~xf, ~Sf, ~u, ~xf, ~Sf, l, ~g, ~H);
+            (~integrator)(dae, dae_s, res, t0 + integrator_step * i, integrator_step, *xf, *Sf, *u, *xf, *Sf, l, *g, *H);
     }
 }

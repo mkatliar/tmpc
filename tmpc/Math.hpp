@@ -205,13 +205,13 @@ namespace tmpc
         blaze::DiagonalMatrix<MT> result(n);
 
         for (size_t i = 0; i < n; ++i)
-            result(i, i) = (~d)[i];
+            result(i, i) = (*d)[i];
 
         return result;
     }
 
 
-    // TODO: uncomment the following lines when 
+    // TODO: uncomment the following lines when
     // we finally get rid of Eigen wrappers with the same names.
     //
     // using blaze::StaticMatrix;
@@ -233,7 +233,7 @@ namespace blaze
     template <typename ET, bool TF>
     inline auto noresize(DynamicVector<ET, TF>& v)
     {
-        return subvector(~v, 0, size(~v));
+        return subvector(*v, 0, size(*v));
     }
 
 
@@ -243,7 +243,7 @@ namespace blaze
     template <typename ET, bool SO>
     inline auto noresize(DynamicMatrix<ET, SO>& m)
     {
-        return submatrix(~m, 0, 0, rows(~m), columns(~m));
+        return submatrix(*m, 0, 0, rows(*m), columns(*m));
     }
 
 
@@ -253,7 +253,7 @@ namespace blaze
     template <typename ET, bool SO>
     inline auto noresize(SymmetricMatrix<DynamicMatrix<ET, SO>>& m)
     {
-        return submatrix(~m, 0, 0, rows(~m), columns(~m));
+        return submatrix(*m, 0, 0, rows(*m), columns(*m));
     }
 
 
@@ -263,7 +263,7 @@ namespace blaze
         if (size(v) != 1)
             BOOST_THROW_EXCEPTION(std::invalid_argument("Invalid size of the scalar() argument: a vector of size 1 expected"));
 
-        return (~v)[0];
+        return (*v)[0];
     }
 
 
@@ -273,7 +273,7 @@ namespace blaze
         if (size(v) != 1)
             BOOST_THROW_EXCEPTION(std::invalid_argument("Invalid size of the scalar() argument: a vector of size 1 expected"));
 
-        return (~v)[0];
+        return (*v)[0];
     }
 
 
@@ -283,7 +283,7 @@ namespace blaze
         if (size(v) != 1)
             BOOST_THROW_EXCEPTION(std::invalid_argument("Invalid size of the scalar() argument: a vector of size 1 expected"));
 
-        return (~v)[0];
+        return (*v)[0];
     }
 
 
@@ -293,7 +293,7 @@ namespace blaze
         if (rows(m) != 1 || columns(m) != 1)
             BOOST_THROW_EXCEPTION(std::invalid_argument("Invalid size of the scalar() argument: a 1x1 matrix expected"));
 
-        return (~m)(0, 0);
+        return (*m)(0, 0);
     }
 
 
@@ -303,7 +303,7 @@ namespace blaze
         if (rows(m) != 1 || columns(m) != 1)
             BOOST_THROW_EXCEPTION(std::invalid_argument("Invalid size of the scalar() argument: a 1x1 matrix expected"));
 
-        return (~m)(0, 0);
+        return (*m)(0, 0);
     }
 
 
@@ -313,7 +313,7 @@ namespace blaze
         if (rows(m) != 1 || columns(m) != 1)
             BOOST_THROW_EXCEPTION(std::invalid_argument("Invalid size of the scalar() argument: a 1x1 matrix expected"));
 
-        return (~m)(0, 0);
+        return (*m)(0, 0);
     }
 
 

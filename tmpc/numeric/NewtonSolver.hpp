@@ -45,8 +45,8 @@ namespace tmpc
 
             functionEvaluations_ = 0;
 
-            ~xf = ~x0;
-            fun(~xf, r_, J_);
+            *xf = *x0;
+            fun(*xf, r_, J_);
             factorizeJacobian();
             ++functionEvaluations_;
 
@@ -54,7 +54,7 @@ namespace tmpc
 			{
                 residualMaxNorm_ = maxNorm(r_);
 
-                monitor(iterations_, std::as_const(~xf), std::as_const(r_), std::as_const(J_));
+                monitor(iterations_, std::as_const(*xf), std::as_const(r_), std::as_const(J_));
 
                 // Residual within tolerance; exit the loop.
 				if (residualMaxNorm_ < residualTolerance_)
@@ -68,12 +68,12 @@ namespace tmpc
 
                 // Do backtracking search.
                 // alpha == 1. disables backtracking.
-                while (fun(x1_ = ~xf + t * d_, r1_, J_), ++functionEvaluations_, alpha_ < 1. && !allAbsLessThan(r1_, r_))
+                while (fun(x1_ = *xf + t * d_, r1_, J_), ++functionEvaluations_, alpha_ < 1. && !allAbsLessThan(r1_, r_))
                     t *= alpha_;
                 factorizeJacobian();
-                
+
                 // Netwon method update: x(n+1) = x(n) + t*d
-                ~xf = x1_;
+                *xf = x1_;
                 r_ = r1_;
             }
 
@@ -82,16 +82,16 @@ namespace tmpc
         }
 
 
-        /// @brief Solve the equation using Newton method and calculate 
+        /// @brief Solve the equation using Newton method and calculate
         /// solution sensitivities w.r.t. parameters.
         ///
         /// @param dxf_dp a NX-by-NP matrix of solution sensitivities
         ///
         template <
-            typename F, 
-            typename DFDP, 
-            typename VT1, 
-            typename VT2, 
+            typename F,
+            typename DFDP,
+            typename VT1,
+            typename VT2,
             typename MT
         >
         void operator()(F const& fun,
@@ -102,15 +102,15 @@ namespace tmpc
         {
             if (size(x0) != nx_)
                 TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector dimension"));
-                
-            (*this)(fun, ~x0, ~xf);
+
+            (*this)(fun, *x0, *xf);
 
             // Calculate df(x,p)/dp at the solution
-            dfdp(~xf, ~dxf_dp);
+            dfdp(*xf, *dxf_dp);
 
             // From 0 = df(x,p)/dx * dx^*/dp + df(x,p)/dp
             // calculate dx^*/dp = -inv(df(x,p)/dx) * df(x,p)/dp
-            jacobianSolve(~dxf_dp, ~dxf_dp);
+            jacobianSolve(*dxf_dp, *dxf_dp);
         }
 
 
@@ -183,22 +183,22 @@ namespace tmpc
         /// @brief Solve J*x+b=0 w.r.t. x where x, b are vectors and J is the current Jacobian.
         template <typename VT1, typename VT2>
         void jacobianSolve(
-            blaze::DenseVector<VT1, blaze::columnVector> const& b, 
+            blaze::DenseVector<VT1, blaze::columnVector> const& b,
             blaze::DenseVector<VT2, blaze::columnVector>& x) const
         {
-            ~x = -~b;
-            getrs(~J_, ~x, 'N', ipiv_.get());
+            *x = -*b;
+            getrs(*J_, *x, 'N', ipiv_.get());
         }
 
 
         /// @brief Solve J*X+B=0 w.r.t. x where X, B are matrices and J is the current Jacobian.
         template <typename MT1, typename MT2>
         void jacobianSolve(
-            blaze::DenseMatrix<MT1, blaze::columnMajor> const& B, 
+            blaze::DenseMatrix<MT1, blaze::columnMajor> const& B,
             blaze::DenseMatrix<MT2, blaze::columnMajor>& X) const
         {
-            ~X = -~B;
-            getrs(~J_, ~X, 'N', ipiv_.get());
+            *X = -*B;
+            getrs(*J_, *X, 'N', ipiv_.get());
         }
 
 
@@ -233,10 +233,10 @@ namespace tmpc
             if (n != size(b))
                 TMPC_THROW_EXCEPTION(std::invalid_argument("Vector sizes don't match"));
 
-            size_t i = 0; 
-            while (i < n && abs((~a)[i]) < abs((~b)[i]))
+            size_t i = 0;
+            while (i < n && abs((*a)[i]) < abs((*b)[i]))
                 ++i;
-                
+
             return i >= n;
         }
 

@@ -14,15 +14,15 @@
 namespace tmpc :: testing
 {
 	using namespace ::testing;
-	
+
 
 	namespace detail
 	{
 		template <typename T>
 		class ForcePrintImpl
-		: 	public T 
+		: 	public T
 		{
-			friend void PrintTo(const ForcePrintImpl &m, ::std::ostream *o) 
+			friend void PrintTo(const ForcePrintImpl &m, ::std::ostream *o)
 			{
 				*o << "\n" << m;
 			}
@@ -36,13 +36,13 @@ namespace tmpc :: testing
 	* Taken from this post: http://stackoverflow.com/questions/25146997/teach-google-test-how-to-print-eigen-matrix
 	*/
 	template <typename T>
-	decltype(auto) forcePrint(T const& val) 
+	decltype(auto) forcePrint(T const& val)
 	{
 		return static_cast<detail::ForcePrintImpl<T> const&>(val);
 	}
 
 
-	MATCHER_P(FloatNearPointwise, tol, "Out of range") 
+	MATCHER_P(FloatNearPointwise, tol, "Out of range")
 	{
 		return (std::get<0>(arg) > std::get<1>(arg) - tol && std::get<0>(arg) < std::get<1>(arg) + tol) ;
 	}
@@ -123,9 +123,9 @@ namespace tmpc :: testing
 
 		for (size_t i = 0; i < M; ++i)
 			for (size_t j = 0; j < N; ++j)
-				if (abs((~lhs)(i, j) - (~rhs)(i, j)) > abs_tol + rel_tol * abs((~rhs)(i, j)))
-					return AssertionFailure() 
-						<< "Actual value:\n" << lhs 
+				if (abs((*lhs)(i, j) - (*rhs)(i, j)) > abs_tol + rel_tol * abs((*rhs)(i, j)))
+					return AssertionFailure()
+						<< "Actual value:\n" << lhs
 						<< "Expected value:\n" << rhs
 						<< "First mismatch at index (" << i << ", " << j << ")";
 
@@ -135,7 +135,7 @@ namespace tmpc :: testing
 
 	/// @brief Blaze vector approx equality predicate
 	template <typename VT1, typename VT2, bool TF, typename Real>
-	inline std::enable_if_t<blaze::IsArithmetic_v<Real>, AssertionResult> 
+	inline std::enable_if_t<blaze::IsArithmetic_v<Real>, AssertionResult>
 		approxEqual(blaze::Vector<VT1, TF> const& lhs, blaze::Vector<VT2, TF> const& rhs, Real abs_tol, Real rel_tol = 0)
 	{
 		size_t const N = size(lhs);
@@ -144,9 +144,9 @@ namespace tmpc :: testing
 			return AssertionFailure() << "Vector size mismatch";
 
 		for (size_t j = 0; j < N; ++j)
-			if (abs((~lhs)[j] - (~rhs)[j]) > abs_tol + rel_tol * abs((~rhs)[j]))
+			if (abs((*lhs)[j] - (*rhs)[j]) > abs_tol + rel_tol * abs((*rhs)[j]))
 				return AssertionFailure()
-					<< "Actual value:\n" << lhs 
+					<< "Actual value:\n" << lhs
 					<< "Expected value:\n" << rhs
 					<< "First mismatch at index (" << j << ")";
 
@@ -185,9 +185,9 @@ namespace tmpc :: testing
 		auto atol = begin(abs_tol);
 
 		for (size_t j = 0; j < N; ++j, ++atol)
-			if (abs((~lhs)[j] - (~rhs)[j]) > *atol)
-				return AssertionFailure() << "First element mismatch at index " 
-					<< j << ", lhs=" << (~lhs)[j] << ", rhs=" << (~rhs)[j] << ", abs_tol=" << *atol;
+			if (abs((*lhs)[j] - (*rhs)[j]) > *atol)
+				return AssertionFailure() << "First element mismatch at index "
+					<< j << ", lhs=" << (*lhs)[j] << ", rhs=" << (*rhs)[j] << ", abs_tol=" << *atol;
 
 		return AssertionSuccess();
 	}
@@ -203,9 +203,9 @@ namespace tmpc :: testing
 			return AssertionFailure() << "Vector size mismatch";
 
 		for (size_t j = 0; j < N; ++j)
-			if (abs((~lhs)[j] - (~rhs)[j]) > (~abs_tol)[j])
-				return AssertionFailure() << "First element mismatch at index " 
-					<< j << ", lhs=" << (~lhs)[j] << ", rhs=" << (~rhs)[j] << ", abs_tol=" << (~abs_tol)[j];
+			if (abs((*lhs)[j] - (*rhs)[j]) > (*abs_tol)[j])
+				return AssertionFailure() << "First element mismatch at index "
+					<< j << ", lhs=" << (*lhs)[j] << ", rhs=" << (*rhs)[j] << ", abs_tol=" << (*abs_tol)[j];
 
 		return AssertionSuccess();
 	}
@@ -223,9 +223,9 @@ namespace tmpc :: testing
 
 		for (size_t i = 0; i < M; ++i)
 			for (size_t j = 0; j < N; ++j)
-				if (!((~lhs)(i, j) == (~rhs)(i, j)))
-					return AssertionFailure() << "First element mismatch at index (" 
-						<< i << "," << j << "), lhs=" << (~lhs)(i, j) << ", rhs=" << (~rhs)(i, j);
+				if (!((*lhs)(i, j) == (*rhs)(i, j)))
+					return AssertionFailure() << "First element mismatch at index ("
+						<< i << "," << j << "), lhs=" << (*lhs)(i, j) << ", rhs=" << (*rhs)(i, j);
 
 		return AssertionSuccess();
 	}
@@ -241,9 +241,9 @@ namespace tmpc :: testing
 			return AssertionFailure() << "Vector size mismatch";
 
 		for (size_t j = 0; j < N; ++j)
-			if (!((~lhs)[j] == (~rhs)[j]))
-				return AssertionFailure() << "First element mismatch at index " 
-					<< j << ", lhs=" << (~lhs)[j] << ", rhs=" << (~rhs)[j];
+			if (!((*lhs)[j] == (*rhs)[j]))
+				return AssertionFailure() << "First element mismatch at index "
+					<< j << ", lhs=" << (*lhs)[j] << ", rhs=" << (*rhs)[j];
 
 		return AssertionSuccess();
 	}

@@ -25,7 +25,7 @@ namespace tmpc
         {
         }
 
-        
+
         template <OcpSize Size>
         explicit DynamicOcpQp(Size const& size)
         :   graph_ {size.graph()}
@@ -65,7 +65,7 @@ namespace tmpc
         template <typename MT, bool SO>
         void H(OcpVertex v, blaze::Matrix<MT, SO> const& val)
         {
-            noresize(vertexProperties_[v].H_) = ~val;
+            noresize(vertexProperties_[v].H_) = *val;
         }
 
 
@@ -84,7 +84,7 @@ namespace tmpc
         template <typename MT, bool SO>
         void Q(OcpVertex v, blaze::Matrix<MT, SO> const& val)
         {
-            vertexProperties_[v].Q_ = ~val;
+            vertexProperties_[v].Q_ = *val;
         }
 
 
@@ -107,7 +107,7 @@ namespace tmpc
         void S(OcpVertex v, blaze::Matrix<MT, SO> const& val)
         {
             assert(out_degree(v, graph_) > 0);
-            vertexProperties_[v].S_ = ~val;
+            vertexProperties_[v].S_ = *val;
         }
 
 
@@ -121,7 +121,7 @@ namespace tmpc
         template <typename VT, bool TF>
         void q(OcpVertex v, blaze::Vector<VT, TF> const& val)
         {
-            noresize(vertexProperties_[v].q_) = ~val;
+            noresize(vertexProperties_[v].q_) = *val;
         }
 
 
@@ -135,7 +135,7 @@ namespace tmpc
         void r(OcpVertex v, blaze::Vector<VT, TF> const& val)
         {
             assert(out_degree(v, graph_) > 0);
-            noresize(vertexProperties_[v].r_) = ~val;
+            noresize(vertexProperties_[v].r_) = *val;
         }
 
 
@@ -149,7 +149,7 @@ namespace tmpc
         template <typename MT, bool SO>
         void C(OcpVertex v, blaze::Matrix<MT, SO> const& val)
         {
-            noresize(vertexProperties_[v].C_) = ~val;
+            noresize(vertexProperties_[v].C_) = *val;
         }
 
 
@@ -163,7 +163,7 @@ namespace tmpc
         void D(OcpVertex v, blaze::Matrix<MT, SO> const& val)
         {
             assert(out_degree(v, graph_) > 0);
-            noresize(vertexProperties_[v].D_) = ~val;
+            noresize(vertexProperties_[v].D_) = *val;
         }
 
 
@@ -177,7 +177,7 @@ namespace tmpc
         template <typename VT, bool TF>
         void ld(OcpVertex v, blaze::Vector<VT, TF> const& val)
         {
-            noresize(vertexProperties_[v].ld_) = ~val;
+            noresize(vertexProperties_[v].ld_) = *val;
         }
 
 
@@ -190,7 +190,7 @@ namespace tmpc
         template <typename VT, bool TF>
         void ud(OcpVertex v, blaze::Vector<VT, TF> const& val)
         {
-            noresize(vertexProperties_[v].ud_) = ~val;
+            noresize(vertexProperties_[v].ud_) = *val;
         }
 
 
@@ -203,7 +203,7 @@ namespace tmpc
         template <typename VT, bool TF>
         void lx(OcpVertex v, blaze::Vector<VT, TF> const& val)
         {
-            noresize(vertexProperties_[v].lx_) = ~val;
+            noresize(vertexProperties_[v].lx_) = *val;
         }
 
 
@@ -216,7 +216,7 @@ namespace tmpc
         template <typename VT, bool TF>
         void ux(OcpVertex v, blaze::Vector<VT, TF> const& val)
         {
-            noresize(vertexProperties_[v].ux_) = ~val;
+            noresize(vertexProperties_[v].ux_) = *val;
         }
 
 
@@ -230,7 +230,7 @@ namespace tmpc
         void lu(OcpVertex v, blaze::Vector<VT, TF> const& val)
         {
             assert(out_degree(v, graph_) > 0);
-            noresize(vertexProperties_[v].lu_) = ~val;
+            noresize(vertexProperties_[v].lu_) = *val;
         }
 
 
@@ -245,7 +245,7 @@ namespace tmpc
         void uu(OcpVertex v, blaze::Vector<VT, TF> const& val)
         {
             assert(out_degree(v, graph_) > 0);
-            noresize(vertexProperties_[v].uu_) = ~val;
+            noresize(vertexProperties_[v].uu_) = *val;
         }
 
 
@@ -265,7 +265,7 @@ namespace tmpc
         template <typename MT, bool SO>
         void BA(OcpEdge e, blaze::Matrix<MT, SO> const& val)
         {
-            noresize(edgeProperties_[e].BA_) = ~val;
+            noresize(edgeProperties_[e].BA_) = *val;
         }
 
 
@@ -278,7 +278,7 @@ namespace tmpc
         template <typename MT, bool SO>
         void A(OcpEdge e, blaze::Matrix<MT, SO> const& val)
         {
-            edgeProperties_[e].A_ = ~val;
+            edgeProperties_[e].A_ = *val;
         }
 
 
@@ -291,7 +291,7 @@ namespace tmpc
         template <typename MT, bool SO>
         void B(OcpEdge e, blaze::Matrix<MT, SO> const& val)
         {
-            edgeProperties_[e].B_ = ~val;
+            edgeProperties_[e].B_ = *val;
         }
 
 
@@ -304,7 +304,7 @@ namespace tmpc
         template <typename VT, bool TF>
         void b(OcpEdge e, blaze::Vector<VT, TF> const& val)
         {
-            noresize(edgeProperties_[e].b_) = ~val;
+            noresize(edgeProperties_[e].b_) = *val;
         }
 
 
@@ -370,7 +370,7 @@ namespace tmpc
 
             Submatrix A_;
             Submatrix B_;
-			
+
             blaze::DynamicVector<Real> b_;
         };
 

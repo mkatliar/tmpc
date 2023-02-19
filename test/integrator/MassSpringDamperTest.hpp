@@ -16,7 +16,7 @@ namespace tmpc :: testing
 	{
 	protected:
 		using Real = double;
-		
+
 		static size_t constexpr NX = 2;
 		static size_t constexpr NZ = 0;
 		static size_t constexpr NU = 1;
@@ -33,8 +33,8 @@ namespace tmpc :: testing
 		void testIntegrate(ExplicitIntegrator<I> const& integrator)
 		{
 			blaze::DynamicVector<Real> xf(NX);
-			integrate(~integrator, 
-				[this] (auto&&... args) { this->explicitOde(std::forward<decltype(args)>(args)...); }, 
+			integrate(~integrator,
+				[this] (auto&&... args) { this->explicitOde(std::forward<decltype(args)>(args)...); },
 				0., T_, numSteps_, x0_, u_, xf);
 
 			EXPECT_TRUE(approxEqual(xf, xf_ref_, 1e-5));
@@ -46,8 +46,8 @@ namespace tmpc :: testing
 		{
 			blaze::DynamicVector<Real> xf {NX};
 			blaze::DynamicMatrix<Real> Sf {NX, NX + NU};
-			integrate(~integrator, 
-				[this] (auto&&... args) { this->explicitOdeSensitivity(std::forward<decltype(args)>(args)...); }, 
+			integrate(~integrator,
+				[this] (auto&&... args) { this->explicitOdeSensitivity(std::forward<decltype(args)>(args)...); },
 				0., T_, numSteps_, x0_, S_, u_, xf, Sf);
 
 			double const tol = 1e-5;
@@ -64,8 +64,8 @@ namespace tmpc :: testing
 			Real l = 0.;
 			blaze::DynamicVector<Real> g(NX + NU, 0.);
 			blaze::DynamicMatrix<Real> H(NX + NU, NX + NU, 0.);
-			
-			integrate(integrator, 
+
+			integrate(integrator,
 				[this] (auto&&... args) { this->explicitOdeSensitivityResidual(std::forward<decltype(args)>(args)...); },
 				0., T_, numSteps_, x0_, S_, u_, xf, Sf, l, g, H);
 
@@ -94,7 +94,7 @@ namespace tmpc :: testing
 		{
 			blaze::DynamicVector<Real> xf {NX};
 			blaze::DynamicMatrix<Real> Sf {NX, NX + NU};
-			integrate(~integrator, 
+			integrate(~integrator,
 				[this] (auto&&... args) { this->implicitOde(std::forward<decltype(args)>(args)...); },
 				[this] (auto&&... args) { this->implicitOdeSensitivity(std::forward<decltype(args)>(args)...); },
 				0., T_, numSteps_, x0_, S_, u_, xf, Sf);
@@ -113,8 +113,8 @@ namespace tmpc :: testing
 			Real l = 0.;
 			blaze::DynamicVector<Real> g(NX + NU, 0.);
 			blaze::DynamicMatrix<Real> H(NX + NU, NX + NU, 0.);
-			
-			integrate(~integrator, 
+
+			integrate(~integrator,
 				[this] (auto&&... args) { this->implicitOde(std::forward<decltype(args)>(args)...); },
 				[this] (auto&&... args) { this->implicitOdeSensitivity(std::forward<decltype(args)>(args)...); },
 				[this] (auto&&... args) { this->residual(std::forward<decltype(args)>(args)...); },
@@ -126,14 +126,14 @@ namespace tmpc :: testing
 			EXPECT_TRUE(approxEqual(g, g_ref_, 1e-10, 1e-5));
 			EXPECT_TRUE(approxEqual(H, H_ref_, 1e-10, 1e-5));
 		}
-		
+
 
 	private:
 		/**
 		 * \brief Evaluates ODE.
 		 */
 		template <typename VT1,	typename VT2, typename VT3>
-		void explicitOde(double t, 
+		void explicitOde(double t,
 			blaze::Vector<VT1, blaze::columnVector> const& x,
 			blaze::Vector<VT2, blaze::columnVector> const& u,
 			blaze::Vector<VT3, blaze::columnVector>& xdot) const
@@ -144,9 +144,9 @@ namespace tmpc :: testing
 			auto const& k = k_;
 			auto const& kappa = kappa_;
 
-			(~xdot).resize(NX);
-			(~xdot)[0] = (~x)[1];
-			(~xdot)[1] = -k * (~x)[0] - 2. * kappa * (~x)[1] + (~u)[0];
+			(*xdot).resize(NX);
+			(*xdot)[0] = (*x)[1];
+			(*xdot)[1] = -k * (*x)[0] - 2. * kappa * (*x)[1] + (*u)[0];
 		}
 
 
@@ -159,7 +159,7 @@ namespace tmpc :: testing
 			typename VT2,
 			typename VT3,
 			typename MT2, bool SO2>
-		void explicitOdeSensitivity(double t, 
+		void explicitOdeSensitivity(double t,
 			blaze::Vector<VT1, blaze::columnVector> const& x,
 			blaze::Matrix<MT1, SO1> const& Sx,
 			blaze::Vector<VT2, blaze::columnVector> const& u,
@@ -172,16 +172,16 @@ namespace tmpc :: testing
 			auto const& k = k_;
 			auto const& kappa = kappa_;
 
-			~xdot = {
-				(~x)[1],
-				-k * (~x)[0] - 2. * kappa * (~x)[1] + (~u)[0]
+			*xdot = {
+				(*x)[1],
+				-k * (*x)[0] - 2. * kappa * (*x)[1] + (*u)[0]
 			};
 
-			~Sxdot = {
-				{(~Sx)(1, 0), (~Sx)(1, 1), (~Sx)(1, 2)},
-				{-k * (~Sx)(0, 0) - 2. * kappa * (~Sx)(1, 0),
-				-k * (~Sx)(0, 1) - 2. * kappa * (~Sx)(1, 1),
-				1. - k * (~Sx)(0, 2) - 2. * kappa * (~Sx)(1, 2)}
+			*Sxdot = {
+				{(*Sx)(1, 0), (*Sx)(1, 1), (*Sx)(1, 2)},
+				{-k * (*Sx)(0, 0) - 2. * kappa * (*Sx)(1, 0),
+				-k * (*Sx)(0, 1) - 2. * kappa * (*Sx)(1, 1),
+				1. - k * (*Sx)(0, 2) - 2. * kappa * (*Sx)(1, 2)}
 			};
 		}
 
@@ -197,7 +197,7 @@ namespace tmpc :: testing
 			typename MT2, bool SO2,
 			typename VT4,
 			typename MT3, bool SO3>
-		void explicitOdeSensitivityResidual(double t, 
+		void explicitOdeSensitivityResidual(double t,
 			blaze::Vector<VT1, blaze::columnVector> const& x,
 			blaze::Matrix<MT1, SO1> const& Sx,
 			blaze::Vector<VT2, blaze::columnVector> const& u,
@@ -212,25 +212,25 @@ namespace tmpc :: testing
 			auto const& k = k_;
 			auto const& kappa = kappa_;
 
-			~xdot  = {
-				(~x)[1],
-				-k * (~x)[0] - 2. * kappa * (~x)[1] + (~u)[0]
+			*xdot  = {
+				(*x)[1],
+				-k * (*x)[0] - 2. * kappa * (*x)[1] + (*u)[0]
 			};
 
-			~Sxdot = {
-				{(~Sx)(1, 0), (~Sx)(1, 1), (~Sx)(1, 2)},
-				{-k * (~Sx)(0, 0) - 2. * kappa * (~Sx)(1, 0),
-				-k * (~Sx)(0, 1) - 2. * kappa * (~Sx)(1, 1),
-				1. - k * (~Sx)(0, 2) - 2. * kappa * (~Sx)(1, 2)}
+			*Sxdot = {
+				{(*Sx)(1, 0), (*Sx)(1, 1), (*Sx)(1, 2)},
+				{-k * (*Sx)(0, 0) - 2. * kappa * (*Sx)(1, 0),
+				-k * (*Sx)(0, 1) - 2. * kappa * (*Sx)(1, 1),
+				1. - k * (*Sx)(0, 2) - 2. * kappa * (*Sx)(1, 2)}
 			};
 
-			~r = {
-				(~x)[1] * (~u)[0],
-				(~u)[0]
+			*r = {
+				(*x)[1] * (*u)[0],
+				(*u)[0]
 			};
 
-			~Sr = {
-				{(~u)[0] * (~Sx)(1, 0), (~u)[0] * (~Sx)(1, 1), (~u)[0] * (~Sx)(1, 2) + (~x)[1]},
+			*Sr = {
+				{(*u)[0] * (*Sx)(1, 0), (*u)[0] * (*Sx)(1, 1), (*u)[0] * (*Sx)(1, 2) + (*x)[1]},
 				{0., 0., 1.}
 			};
 		}
@@ -266,13 +266,13 @@ namespace tmpc :: testing
 			auto const& kappa = kappa_;
 
 			resize(f, NX);
-			(~f)[0] = (~x)[1] - (~xdot)[0];
-			(~f)[1] = -k * (~x)[0] - 2. * kappa * (~x)[1] + (~u)[0] - (~xdot)[1];
+			(*f)[0] = (*x)[1] - (*xdot)[0];
+			(*f)[1] = -k * (*x)[0] - 2. * kappa * (*x)[1] + (*u)[0] - (*xdot)[1];
 
-			~Jxdot = -blaze::IdentityMatrix<Real>(NX);
+			*Jxdot = -blaze::IdentityMatrix<Real>(NX);
 
 			resize(Jx, NX, NX);
-			~Jx = {
+			*Jx = {
 				{0., 1.},
 				{-k, -2. * kappa}
 			};
@@ -301,14 +301,14 @@ namespace tmpc :: testing
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
 
 			resize(Sf, NX, NX + NU);
-			~Sf = {
-				{(~Sx)(1, 0), (~Sx)(1, 1), (~Sx)(1, 2)},
-				{-k_ * (~Sx)(0, 0) - 2. * kappa_ * (~Sx)(1, 0),
-				-k_ * (~Sx)(0, 1) - 2. * kappa_ * (~Sx)(1, 1),
-				1. - k_ * (~Sx)(0, 2) - 2. * kappa_ * (~Sx)(1, 2)}
+			*Sf = {
+				{(*Sx)(1, 0), (*Sx)(1, 1), (*Sx)(1, 2)},
+				{-k_ * (*Sx)(0, 0) - 2. * kappa_ * (*Sx)(1, 0),
+				-k_ * (*Sx)(0, 1) - 2. * kappa_ * (*Sx)(1, 1),
+				1. - k_ * (*Sx)(0, 2) - 2. * kappa_ * (*Sx)(1, 2)}
 			};
 		}
-			
+
 
 		/**
 		 * \brief Evaluates the residual and Jacobian of the residual.
@@ -322,7 +322,7 @@ namespace tmpc :: testing
 			typename VT4,
 			typename MT3, bool SO3
 		>
-		void residual(double t, 
+		void residual(double t,
 			blaze::Vector<VT1, blaze::columnVector> const& x,
 			blaze::Matrix<MT1, SO1> const& Sx,
 			blaze::Vector<VT2, blaze::columnVector> const& z,
@@ -334,13 +334,13 @@ namespace tmpc :: testing
 			if (size(x) != NX || size(z) != NZ || size(u) != NU)
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
 
-			~r = {
-				(~x)[1] * (~u)[0],
-				(~u)[0]
+			*r = {
+				(*x)[1] * (*u)[0],
+				(*u)[0]
 			};
 
-			~Sr = {
-				{(~u)[0] * (~Sx)(1, 0), (~u)[0] * (~Sx)(1, 1), (~u)[0] * (~Sx)(1, 2) + (~x)[1]},
+			*Sr = {
+				{(*u)[0] * (*Sx)(1, 0), (*u)[0] * (*Sx)(1, 1), (*u)[0] * (*Sx)(1, 2) + (*x)[1]},
 				{0., 0., 1.}
 			};
 		}
@@ -353,10 +353,10 @@ namespace tmpc :: testing
 			typename VT1,
 			typename VT2,
 			typename VT3,
-			typename MT1, bool SO1, 
+			typename MT1, bool SO1,
 			typename VT4,
 			typename MT2, bool SO2>
-		void analyticalSolution(double t, 
+		void analyticalSolution(double t,
 			blaze::Vector<VT1, blaze::columnVector> const& x0,
 			blaze::Vector<VT2, blaze::columnVector> const& uu,
 			blaze::Vector<VT3, blaze::columnVector>& xf,
@@ -370,29 +370,29 @@ namespace tmpc :: testing
 			if (size(x0) != NX || size(uu) != NU)
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
 
-			auto const& q0 = (~x0)[0];
-			auto const& v0 = (~x0)[1];
-			auto const& u = (~uu)[0];
+			auto const& q0 = (*x0)[0];
+			auto const& v0 = (*x0)[1];
+			auto const& u = (*uu)[0];
 
 			auto const s = sqrt(std::complex<double> {-k_ + pow(kappa_, 2)});
-			auto const qf = (1./(2.*k_*s)) * exp(-t*(s+kappa_)) 
+			auto const qf = (1./(2.*k_*s)) * exp(-t*(s+kappa_))
 				* (-u*((1.+exp(2.*s*t)-2.*exp(t*(s+kappa_)))*s+(-1.+exp(2.*s*t))*kappa_)
 				+k_*((-1.+exp(2.*s*t))*v0-q0*kappa_+q0*(s+exp(2.*s*t)*(s+kappa_))));
 			auto const vf = (exp(-t*kappa_)*(s*v0*cosh(s*t) + (-k_*q0 + u - v0*kappa_)*sinh(s*t)))/s;
 
 			// IVP solution
-			(~xf).resize(NX);
-			(~xf)[0] = real(qf);
-			(~xf)[1] = real(vf);
+			(*xf).resize(NX);
+			(*xf)[0] = real(qf);
+			(*xf)[1] = real(vf);
 
 			// IVP sensitivities
-			(~Sf).resize(NX, NX + NU);
-			(~Sf)(0, 0) = real((exp(-t*kappa_)*(s*cosh(s*t) + kappa_*sinh(s*t)))/s);
-			(~Sf)(0, 1) = real((exp(-t*(s + kappa_))*(-1. + exp(2.*s*t)))/(2.*s));
-			(~Sf)(0, 2) = real((s - exp(-t*kappa_)*(s*cosh(s*t) + kappa_*sinh(s*t)))/(k_*s));
-			(~Sf)(1, 0) = real(-((exp(-t*kappa_)*k_*sinh(s*t))/s));
-			(~Sf)(1, 1) = real((exp(-t*kappa_)*(s*cosh(s*t) - kappa_*sinh(s*t)))/s);
-			(~Sf)(1, 2) = real((exp(-t*kappa_)*sinh(s*t))/s);
+			(*Sf).resize(NX, NX + NU);
+			(*Sf)(0, 0) = real((exp(-t*kappa_)*(s*cosh(s*t) + kappa_*sinh(s*t)))/s);
+			(*Sf)(0, 1) = real((exp(-t*(s + kappa_))*(-1. + exp(2.*s*t)))/(2.*s));
+			(*Sf)(0, 2) = real((s - exp(-t*kappa_)*(s*cosh(s*t) + kappa_*sinh(s*t)))/(k_*s));
+			(*Sf)(1, 0) = real(-((exp(-t*kappa_)*k_*sinh(s*t))/s));
+			(*Sf)(1, 1) = real((exp(-t*kappa_)*(s*cosh(s*t) - kappa_*sinh(s*t)))/s);
+			(*Sf)(1, 2) = real((exp(-t*kappa_)*sinh(s*t))/s);
 
 			// Lagrange term integral
 			l = real((1./(8.*pow(s, 2)*(s-kappa_)*kappa_*(s+kappa_)))*exp(-2.*t*kappa_)*pow(u, 2)
@@ -402,43 +402,43 @@ namespace tmpc :: testing
 				+s*kappa_*(pow(-k_*q0+u, 2)+pow(v0, 2)*(s-kappa_)*(s+kappa_))*sinh(2.*s*t)));
 
 			// Lagrange term integral gradient
-			~g = {
+			*g = {
 				real((1./(4.*pow(s, 2)*kappa_*(-s + kappa_)*(s + kappa_)))*exp(-2.*t*kappa_)
-					*k_*pow(u, 2)*(exp(2.*t*kappa_)*pow(s, 2)*(k_*q0 - u) + (k_*q0 - u + v0*kappa_)*(-pow(s, 2) + pow(kappa_, 2)) 
+					*k_*pow(u, 2)*(exp(2.*t*kappa_)*pow(s, 2)*(k_*q0 - u) + (k_*q0 - u + v0*kappa_)*(-pow(s, 2) + pow(kappa_, 2))
 					+ kappa_*(pow(s, 2)*v0 + kappa_*(-k_*q0 + u - v0*kappa_))*cosh(2.*s*t) + s*(-k_*q0 + u)*kappa_*sinh(2.*s*t))),
 				real((1./(4.*pow(s, 2)*kappa_))*exp(-2.*t*kappa_)*pow(u, 2)*((-1. + exp(2.*t*kappa_))*pow(s, 2)*v0 + kappa_*(k_*q0 - u
 					+ v0*kappa_) + kappa_*(-k_*q0 + u - v0*kappa_)*cosh(2.*s*t) + s*v0*kappa_*sinh(2.*s*t))),
-				real((1./(4.*pow(s, 2)*kappa_*(-s + kappa_)*(s + kappa_)))*exp(-2.*t*kappa_)*u*((s - kappa_)*(s + kappa_)*(pow(s, 2)*pow(v0, 2) 
-					- (k_*q0 - 2.*u + v0*kappa_)*(k_*q0 - u + v0*kappa_)) + exp(2.*t*kappa_)*pow(s, 2)*((k_*q0 - 2.*u)*(k_*q0 - u) + (pow(v0, 2) + 
+				real((1./(4.*pow(s, 2)*kappa_*(-s + kappa_)*(s + kappa_)))*exp(-2.*t*kappa_)*u*((s - kappa_)*(s + kappa_)*(pow(s, 2)*pow(v0, 2)
+					- (k_*q0 - 2.*u + v0*kappa_)*(k_*q0 - u + v0*kappa_)) + exp(2.*t*kappa_)*pow(s, 2)*((k_*q0 - 2.*u)*(k_*q0 - u) + (pow(v0, 2) +
 					4.*t*kappa_)*(-pow(s, 2) + pow(kappa_, 2))) - kappa_*(pow(k_, 2)*pow(q0, 2)*kappa_ + pow(s, 2)*v0*(3.*u - v0*kappa_)
-					+ kappa_*(-2.*u + v0*kappa_)*(-u + v0*kappa_) + k_*q0*(-2.*pow(s, 2)*v0 + kappa_*(-3.*u + 2.*v0*kappa_)))*cosh(2.*s*t) - 
+					+ kappa_*(-2.*u + v0*kappa_)*(-u + v0*kappa_) + k_*q0*(-2.*pow(s, 2)*v0 + kappa_*(-3.*u + 2.*v0*kappa_)))*cosh(2.*s*t) -
 					s*kappa_*((k_*q0 - 2.*u)*(k_*q0 - u) + pow(v0, 2)*(s - kappa_)*(s + kappa_))*sinh(2.*s*t)))
 			};
 
 			// Lagrange term Gauss-Newton Hessian approximation
-			(~H)(0, 0) = real((exp(-2.*t*kappa_)*pow(k_, 2)*pow(u, 2)*((-1. + exp(
+			(*H)(0, 0) = real((exp(-2.*t*kappa_)*pow(k_, 2)*pow(u, 2)*((-1. + exp(
 				2.*t*kappa_))*pow(s, 2) + pow(kappa_, 2) - kappa_*(kappa_*cosh(2.*s*t) + s*sinh(2.*s*t))))
 				/(4.*pow(s, 2)*(-pow(s, 2)*kappa_ + pow(kappa_, 3))));
-			(~H)(1, 0) = (~H)(0, 1) = real(-((exp(-2.*t*kappa_)*k_*pow(u, 2)*pow(sinh(s*t), 2))/(2.*pow(s, 2))));
-			(~H)(1, 1) = real((exp(-2.*t*kappa_)*pow(u, 2)*((-1. + exp(
-				2.*t*kappa_))*pow(s, 2) + pow(kappa_, 2) - pow(kappa_, 2)*cosh(2.*s*t) + 
+			(*H)(1, 0) = (*H)(0, 1) = real(-((exp(-2.*t*kappa_)*k_*pow(u, 2)*pow(sinh(s*t), 2))/(2.*pow(s, 2))));
+			(*H)(1, 1) = real((exp(-2.*t*kappa_)*pow(u, 2)*((-1. + exp(
+				2.*t*kappa_))*pow(s, 2) + pow(kappa_, 2) - pow(kappa_, 2)*cosh(2.*s*t) +
 				s*kappa_*sinh(2.*s*t)))/(4.*pow(s, 2)*kappa_));
-			(~H)(2, 0) = (~H)(0, 2) = real((exp(-2.*t*kappa_)*k_*u*(exp(2.*t*kappa_)
-				*pow(s, 2)*(k_*q0 - 2.*u) + (k_*q0 - 2.*u + 
+			(*H)(2, 0) = (*H)(0, 2) = real((exp(-2.*t*kappa_)*k_*u*(exp(2.*t*kappa_)
+				*pow(s, 2)*(k_*q0 - 2.*u) + (k_*q0 - 2.*u +
 				v0*kappa_)*(-pow(s, 2) + pow(kappa_, 2)) + kappa_*(pow(s, 2)*v0 - kappa_
-				*(k_*q0 - 2.*u + v0*kappa_))*cosh(2.*s*t) + 
+				*(k_*q0 - 2.*u + v0*kappa_))*cosh(2.*s*t) +
 				s*(-k_*q0 + 2.*u)*kappa_*sinh(2.*s*t)))/(4.*pow(s, 2)*kappa_*(-s + kappa_)*(s + kappa_)));
-			(~H)(2, 1) = (~H)(1, 2) = real((exp(-2.*t*kappa_)*u*((-1. + exp(
-				2.*t*kappa_))*pow(s, 2)*v0 + kappa_*(k_*q0 - 2.*u + 
+			(*H)(2, 1) = (*H)(1, 2) = real((exp(-2.*t*kappa_)*u*((-1. + exp(
+				2.*t*kappa_))*pow(s, 2)*v0 + kappa_*(k_*q0 - 2.*u +
 				v0*kappa_) - kappa_*(k_*q0 - 2.*u + v0*kappa_)*cosh(2.*s*t) +
 				s*v0*kappa_*sinh(2.*s*t)))/(4.*pow(s, 2)*kappa_));
-			(~H)(2, 2) = real((exp(-2.*t*kappa_)*((s - kappa_)*(s + kappa_)*(k_*q0 - 2.*u + 
-				v0*(-s + kappa_))*(k_*q0 - 2.*u + v0*(s + kappa_)) + 
-				exp(2.*t*kappa_)*pow(s, 2)*(-pow(k_*q0 - 2.*u, 2) + (s - kappa_)*(s + kappa_)*(pow(v0, 2) + 
-				4.*t*kappa_)) + kappa_*(pow(k_, 2)*pow(q0, 2)*kappa_ + 
-				pow(s, 2)*v0*(4.*u - v0*kappa_) + kappa_*pow(-2.*u + v0*kappa_, 2) - 
-				2.*k_*q0*(2.*u*kappa_ + v0*(s - kappa_)*(s + kappa_)))*cosh(2.*s*t) + 
-				s*kappa_*(pow(k_*q0 - 2.*u, 2) + 
+			(*H)(2, 2) = real((exp(-2.*t*kappa_)*((s - kappa_)*(s + kappa_)*(k_*q0 - 2.*u +
+				v0*(-s + kappa_))*(k_*q0 - 2.*u + v0*(s + kappa_)) +
+				exp(2.*t*kappa_)*pow(s, 2)*(-pow(k_*q0 - 2.*u, 2) + (s - kappa_)*(s + kappa_)*(pow(v0, 2) +
+				4.*t*kappa_)) + kappa_*(pow(k_, 2)*pow(q0, 2)*kappa_ +
+				pow(s, 2)*v0*(4.*u - v0*kappa_) + kappa_*pow(-2.*u + v0*kappa_, 2) -
+				2.*k_*q0*(2.*u*kappa_ + v0*(s - kappa_)*(s + kappa_)))*cosh(2.*s*t) +
+				s*kappa_*(pow(k_*q0 - 2.*u, 2) +
 				pow(v0, 2)*(s - kappa_)*(s + kappa_))*sinh(2.*s*t)))/(4.*pow(s, 2)*(s - kappa_)*kappa_*(s + kappa_)));
 		}
 

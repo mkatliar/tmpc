@@ -33,7 +33,7 @@ namespace tmpc
     inline void integrate(
         ExplicitIntegrator<I> const& integrator,
         ODE const& ode,
-        Real t0, Real h, size_t num_integrator_steps, 
+        Real t0, Real h, size_t num_integrator_steps,
         blaze::Vector<VT1, blaze::columnVector> const& x0,
         blaze::Matrix<MT1, SO1>& S,
         blaze::Vector<VT2, blaze::columnVector> const& u,
@@ -43,11 +43,11 @@ namespace tmpc
         // Actual integrator step
         Real const integrator_step = h / num_integrator_steps;
 
-        ~xf = ~x0;
-        ~Sf = ~S;
+        *xf = *x0;
+        *Sf = *S;
 
         for (size_t i = 0; i < num_integrator_steps; ++i)
-            (~integrator)(ode, t0 + integrator_step * i, integrator_step, ~xf, ~Sf, ~u, ~xf, ~Sf);
+            (~integrator)(ode, t0 + integrator_step * i, integrator_step, *xf, *Sf, *u, *xf, *Sf);
     }
 
 
@@ -65,7 +65,7 @@ namespace tmpc
     inline void integrate(
         ExplicitIntegrator<I> const& integrator,
         ODE const& ode,
-        Real t0, Real h, size_t num_integrator_steps, 
+        Real t0, Real h, size_t num_integrator_steps,
         blaze::Vector<VT1, blaze::columnVector> const& x0,
         blaze::Matrix<MT1, SO1>& S,
         blaze::Vector<VT2, blaze::columnVector> const& u,
@@ -78,10 +78,10 @@ namespace tmpc
         // Actual integrator step
         Real const integrator_step = h / num_integrator_steps;
 
-        ~xf = ~x0;
-        ~Sf = ~S;
+        *xf = *x0;
+        *Sf = *S;
 
         for (size_t i = 0; i < num_integrator_steps; ++i)
-            (~integrator)(ode, t0 + integrator_step * i, integrator_step, ~xf, ~Sf, ~u, ~xf, ~Sf, l, ~g, ~H);
+            (~integrator)(ode, t0 + integrator_step * i, integrator_step, *xf, *Sf, *u, *xf, *Sf, l, *g, *H);
     }
 }

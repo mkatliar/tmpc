@@ -2,6 +2,10 @@
 
 #include <tmpc/Exception.hpp>
 
+#include <blaze/Math.h>
+
+#include <cmath>
+
 
 namespace tmpc
 {
@@ -23,25 +27,25 @@ namespace tmpc
             switch (stages_)
             {
                 case 2:
-                    // The tables for the 2- and 3-point Gauss-Legendre method are taken from 
+                    // The tables for the 2- and 3-point Gauss-Legendre method are taken from
                     // https://en.wikipedia.org/wiki/List_of_Runge%E2%80%93Kutta_methods#Gauss%E2%80%93Legendre_methods
-                    ~A = {
+                    *A = {
                         {1./4., 1./4. - sqrt(3.)/6.},
                         {1./4. + sqrt(3.)/6., 1./4.}
                     };
-                    ~b = {1./2., 1./2.};
-                    ~c = {1./2. - sqrt(3.)/6., 1./2. + sqrt(3.)/6.};
-                    
+                    *b = {1./2., 1./2.};
+                    *c = {1./2. - sqrt(3.)/6., 1./2. + sqrt(3.)/6.};
+
                     break;
 
                 case 3:
-                    ~A = {
+                    *A = {
                         {5./36., 2./9. - sqrt(15.)/15., 5./36. - sqrt(15.)/30.},
                         {5./36. + sqrt(15.)/24., 2./9., 5./36. - sqrt(15.)/24.},
                         {5./36. + sqrt(15.)/30., 2./9. + sqrt(15.)/15., 5./36.},
                     };
-                    ~b = {5./18., 4./9., 5./18.};
-                    ~c = {1./2. - sqrt(15.)/10., 1./2., 1./2. + sqrt(15.)/10.};
+                    *b = {5./18., 4./9., 5./18.};
+                    *c = {1./2. - sqrt(15.)/10., 1./2., 1./2. + sqrt(15.)/10.};
 
                     break;
 

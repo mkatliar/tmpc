@@ -19,7 +19,7 @@ namespace tmpc :: testing
 		static size_t constexpr NZ = 0;
 		static size_t constexpr NU = 1;
 		static size_t constexpr NR = 1;
-		
+
 
 		DecayTest()
 		{
@@ -31,7 +31,7 @@ namespace tmpc :: testing
 		void testIntegrate(ExplicitIntegrator<I> const& integrator)
 		{
 			blaze::DynamicVector<Real> xf(NX);
-			integrate(~integrator, 
+			integrate(~integrator,
 				[this] (auto&&... args) { this->explicitOde(std::forward<decltype(args)>(args)...); },
 				0., T_, numSteps_, x0_, u_, xf);
 
@@ -44,7 +44,7 @@ namespace tmpc :: testing
 		{
 			blaze::DynamicVector<Real> xf {NX};
 			blaze::DynamicMatrix<Real> Sf {NX, NX + NU};
-			integrate(~integrator, 
+			integrate(~integrator,
 				[this] (auto&&... args) { this->explicitOdeSensitivity(std::forward<decltype(args)>(args)...); },
 				0., T_, numSteps_, x0_, S_, u_, xf, Sf);
 
@@ -62,8 +62,8 @@ namespace tmpc :: testing
 			Real l = 0.;
 			blaze::DynamicVector<Real> g(NX + NU, 0.);
 			blaze::DynamicMatrix<Real> H(NX + NU, NX + NU, 0.);
-			
-			integrate(~integrator, 
+
+			integrate(~integrator,
 				[this] (auto&&... args) { this->explicitOdeSensitivityResidual(std::forward<decltype(args)>(args)...); },
 				0., T_, numSteps_, x0_, S_, u_, xf, Sf, l, g, H);
 
@@ -79,7 +79,7 @@ namespace tmpc :: testing
 		void testIntegrate(ImplicitIntegrator<I> const& integrator)
 		{
 			blaze::DynamicVector<Real> xf(NX);
-			integrate(~integrator, 
+			integrate(~integrator,
 				[this] (auto&&... args) { this->implicitOde(std::forward<decltype(args)>(args)...); },
 				0., T_, numSteps_, x0_, u_, xf);
 
@@ -92,7 +92,7 @@ namespace tmpc :: testing
 		{
 			blaze::DynamicVector<Real> xf {NX};
 			blaze::DynamicMatrix<Real> Sf {NX, NX + NU};
-			integrate(~integrator, 
+			integrate(~integrator,
 				[this] (auto&&... args) { this->implicitOde(std::forward<decltype(args)>(args)...); },
 				[this] (auto&&... args) { this->implicitOdeSensitivity(std::forward<decltype(args)>(args)...); },
 				0., T_, numSteps_, x0_, S_, u_, xf, Sf);
@@ -111,8 +111,8 @@ namespace tmpc :: testing
 			Real l = 0.;
 			blaze::DynamicVector<Real> g(NX + NU, 0.);
 			blaze::DynamicMatrix<Real> H(NX + NU, NX + NU, 0.);
-			
-			integrate(~integrator, 
+
+			integrate(~integrator,
 				[this] (auto&&... args) { this->implicitOde(std::forward<decltype(args)>(args)...); },
 				[this] (auto&&... args) { this->implicitOdeSensitivity(std::forward<decltype(args)>(args)...); },
 				[this] (auto&&... args) { this->residual(std::forward<decltype(args)>(args)...); },
@@ -126,12 +126,12 @@ namespace tmpc :: testing
 		}
 
 
-	private:		
+	private:
 		/**
 		 * \brief Evaluates ODE.
 		 */
 		template <typename VT1,	typename VT2, typename VT3>
-		void explicitOde(double t, 
+		void explicitOde(double t,
 			blaze::Vector<VT1, blaze::columnVector> const& x,
 			blaze::Vector<VT2, blaze::columnVector> const& u,
 			blaze::Vector<VT3, blaze::columnVector>& xdot) const
@@ -139,8 +139,8 @@ namespace tmpc :: testing
 			if (size(x) != NX || size(u) != NU)
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
 
-			(~xdot).resize(NX);
-			(~xdot)[0] = -(~u)[0] * (~x)[0];
+			(*xdot).resize(NX);
+			(*xdot)[0] = -(*u)[0] * (*x)[0];
 		}
 
 
@@ -153,7 +153,7 @@ namespace tmpc :: testing
 			typename VT2,
 			typename VT3,
 			typename MT2, bool SO2>
-		void explicitOdeSensitivity(double t, 
+		void explicitOdeSensitivity(double t,
 			blaze::Vector<VT1, blaze::columnVector> const& x,
 			blaze::Matrix<MT1, SO1> const& Sx,
 			blaze::Vector<VT2, blaze::columnVector> const& u,
@@ -164,11 +164,11 @@ namespace tmpc :: testing
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
 
 			resize(xdot, NX);
-			(~xdot)[0] = -(~u)[0] * (~x)[0];
+			(*xdot)[0] = -(*u)[0] * (*x)[0];
 
 			resize(Sxdot, NX, NX + NU);
-			~Sxdot = {
-				{-(~u)[0] * (~Sx)(0, 0), -(~u)[0] * (~Sx)(0, 1) - (~x)[0]}
+			*Sxdot = {
+				{-(*u)[0] * (*Sx)(0, 0), -(*u)[0] * (*Sx)(0, 1) - (*x)[0]}
 			};
 		}
 
@@ -184,7 +184,7 @@ namespace tmpc :: testing
 			typename MT2, bool SO2,
 			typename VT4,
 			typename MT3, bool SO3>
-		void explicitOdeSensitivityResidual(double t, 
+		void explicitOdeSensitivityResidual(double t,
 			blaze::Vector<VT1, blaze::columnVector> const& x,
 			blaze::Matrix<MT1, SO1> const& Sx,
 			blaze::Vector<VT2, blaze::columnVector> const& u,
@@ -197,18 +197,18 @@ namespace tmpc :: testing
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
 
 			resize(xdot, NX);
-			(~xdot)[0] = -(~u)[0] * (~x)[0];
+			(*xdot)[0] = -(*u)[0] * (*x)[0];
 
 			resize(Sxdot, NX, NX + NU);
-			~Sxdot = {
-				{-(~u)[0] * (~Sx)(0, 0), -(~u)[0] * (~Sx)(0, 1) - (~x)[0]}
+			*Sxdot = {
+				{-(*u)[0] * (*Sx)(0, 0), -(*u)[0] * (*Sx)(0, 1) - (*x)[0]}
 			};
 
-			~r = ~x;
-			~Sr = ~Sx;
+			*r = *x;
+			*Sr = *Sx;
 		}
 
-	
+
 		/**
 		 * \brief Evaluates implicit ODE and Jacobians.
 		 */
@@ -236,13 +236,13 @@ namespace tmpc :: testing
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
 
 			resize(f, NX);
-			(~f)[0] = -(~u)[0] * (~x)[0] - (~xdot)[0];
+			(*f)[0] = -(*u)[0] * (*x)[0] - (*xdot)[0];
 
-			~Jxdot = -blaze::IdentityMatrix<Real>(NX);
+			*Jxdot = -blaze::IdentityMatrix<Real>(NX);
 
 			resize(Jx, NX, NX);
-			~Jx = {
-				{-(~u)[0]}
+			*Jx = {
+				{-(*u)[0]}
 			};
 		}
 
@@ -269,8 +269,8 @@ namespace tmpc :: testing
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
 
 			resize(Sf, NX, NX + NU);
-			~Sf = {
-				{-(~u)[0] * (~Sx)(0, 0), -(~u)[0] * (~Sx)(0, 1) - (~x)[0]}
+			*Sf = {
+				{-(*u)[0] * (*Sx)(0, 0), -(*u)[0] * (*Sx)(0, 1) - (*x)[0]}
 			};
 		}
 
@@ -287,7 +287,7 @@ namespace tmpc :: testing
 			typename VT4,
 			typename MT3, bool SO3
 		>
-		void residual(double t, 
+		void residual(double t,
 			blaze::Vector<VT1, blaze::columnVector> const& x,
 			blaze::Matrix<MT1, SO1> const& Sx,
 			blaze::Vector<VT2, blaze::columnVector> const& z,
@@ -299,8 +299,8 @@ namespace tmpc :: testing
 			if (size(x) != NX || size(z) != NZ || size(u) != NU)
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
 
-			~r = ~x;
-			~Sr = ~Sx;
+			*r = *x;
+			*Sr = *Sx;
 		}
 
 
@@ -311,10 +311,10 @@ namespace tmpc :: testing
 			typename VT1,
 			typename VT2,
 			typename VT3,
-			typename MT1, bool SO1, 
+			typename MT1, bool SO1,
 			typename VT4,
 			typename MT2, bool SO2>
-		void analyticalSolution(double t, 
+		void analyticalSolution(double t,
 			blaze::Vector<VT1, blaze::columnVector> const& x0,
 			blaze::Vector<VT2, blaze::columnVector> const& uu,
 			blaze::Vector<VT3, blaze::columnVector>& xf,
@@ -328,32 +328,32 @@ namespace tmpc :: testing
 			if (size(x0) != NX || size(uu) != NU)
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
 
-			auto const& u = (~uu)[0];
+			auto const& u = (*uu)[0];
 
 			// IVP solution
-			(~xf).resize(NX);
-			(~xf)[0] = exp(-t * u) * (~x0)[0];
+			(*xf).resize(NX);
+			(*xf)[0] = exp(-t * u) * (*x0)[0];
 
 			// IVP sensitivities
-			(~Sf).resize(NX, NX + NU);
-			(~Sf)(0, 0) = exp(-t * u);
-			(~Sf)(0, 1) = -exp(-t * u) * t * (~x0)[0];
+			(*Sf).resize(NX, NX + NU);
+			(*Sf)(0, 0) = exp(-t * u);
+			(*Sf)(0, 1) = -exp(-t * u) * t * (*x0)[0];
 
 			// Integral of the Lagrange term
-			l = -(((-1. + exp(-2. * t * u)) * pow((~x0)[0], 2)) / (4. * u));
+			l = -(((-1. + exp(-2. * t * u)) * pow((*x0)[0], 2)) / (4. * u));
 
 			// Gradient of the integral of the Lagrange term
 			resize(g, NX + NU);
-			~g = {
-				-(((-1. + exp(-2. * t * u)) * (~x0)[0]) / (2. * u)),
-				-((exp(-2. * t * u) * (-1. + exp(2. * t * u) - 2. * t * u) * pow((~x0)[0], 2)) / (4. * pow(u, 2)))
+			*g = {
+				-(((-1. + exp(-2. * t * u)) * (*x0)[0]) / (2. * u)),
+				-((exp(-2. * t * u) * (-1. + exp(2. * t * u) - 2. * t * u) * pow((*x0)[0], 2)) / (4. * pow(u, 2)))
 			};
 
 			// Integral of the Gauss-Newton Hessian approximation of the Lagrange term
 			resize(H, NX + NU, NX + NU);
-			(~H)(0, 0) = -((-1. + exp(-2. * t * u)) / (2. * u));
-			(~H)(1, 0) = (~H)(0, 1) = -((exp(-2. * t * u) * (-1. + exp(2. * t * u) - 2. * t * u) * (~x0)[0]) / (4. * pow(u, 2)));
-			(~H)(1, 1) = ((1. + exp(-2. * t * u) * (-1. - 2. * t * u * (1. + t * u))) * pow((~x0)[0], 2)) / (4. * pow(u, 3));
+			(*H)(0, 0) = -((-1. + exp(-2. * t * u)) / (2. * u));
+			(*H)(1, 0) = (*H)(0, 1) = -((exp(-2. * t * u) * (-1. + exp(2. * t * u) - 2. * t * u) * (*x0)[0]) / (4. * pow(u, 2)));
+			(*H)(1, 1) = ((1. + exp(-2. * t * u) * (-1. - 2. * t * u * (1. + t * u))) * pow((*x0)[0], 2)) / (4. * pow(u, 3));
 		}
 
 

@@ -13,7 +13,7 @@ namespace tmpc
 	/**
 	 * \brief Explicit Runge-Kutta integrator.
 	 * \ingroup integrators
-	 * 
+	 *
 	 */
 	template <typename Real>
 	class ExplicitRungeKutta
@@ -21,7 +21,7 @@ namespace tmpc
 	{
 	public:
 		template <typename Method>
-		ExplicitRungeKutta(Method const& method, size_t nx, size_t nu, size_t ny = 0) 
+		ExplicitRungeKutta(Method const& method, size_t nx, size_t nu, size_t ny = 0)
 		:	nx_(nx)
 		,	nu_(nu)
 		,	m_(method.stages())
@@ -46,7 +46,7 @@ namespace tmpc
 			{
 				k_[i].resize(nx, Real {});
 				K_[i].resize(nx, nx + nu, Real {});
-			}		
+			}
 		}
 
 
@@ -66,33 +66,33 @@ namespace tmpc
 			if (size(xf) != nx_)
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid size of xf"));
 
-			xf_ = ~x0;
+			xf_ = *x0;
 
 			for (size_t i = 0; i < m_; ++i)
 			{
-				s_ = ~x0;
+				s_ = *x0;
 				for (size_t j = 0; j < i; ++j) if (A_(i, j))
 					s_ += h * A_(i, j) * k_[j];
 
-				ode(t0 + h * c_[i], s_, ~u, k_[i]);
+				ode(t0 + h * c_[i], s_, *u, k_[i]);
 				xf_ += h * b_[i] * k_[i];
 			}
 
-			~xf = xf_;
+			*xf = xf_;
 		}
 
 
-		/// @brief Integrate an ODE and calculate forward sensitivities		
-		template <typename ODE, 
+		/// @brief Integrate an ODE and calculate forward sensitivities
+		template <typename ODE,
 			typename VT1,
 			typename MT1, bool SO1,
 			typename VT2,
 			typename VT3,
 			typename MT2, bool SO2>
 		void operator()(ODE const& ode, Real t0, Real h,
-			blaze::Vector<VT1, blaze::columnVector> const& x0, 
+			blaze::Vector<VT1, blaze::columnVector> const& x0,
 			blaze::Matrix<MT1, SO1> const& S,
-			blaze::Vector<VT2, blaze::columnVector> const& u, 
+			blaze::Vector<VT2, blaze::columnVector> const& u,
 			blaze::Vector<VT3, blaze::columnVector>& xf,
 			blaze::Matrix<MT2, SO2>& Sf) const
 		{
@@ -106,13 +106,13 @@ namespace tmpc
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid size of xf"));
 
 
-			xf_ = ~x0;
-			Sf_ = ~S;
+			xf_ = *x0;
+			Sf_ = *S;
 
 			for (size_t i = 0; i < m_; ++i)
 			{
-				s_ = ~x0;
-				S_ = ~S;
+				s_ = *x0;
+				S_ = *S;
 
 				for (size_t j = 0; j < i; ++j) if (A_(i, j))
 				{
@@ -120,19 +120,19 @@ namespace tmpc
 					S_ += h * A_(i, j) * K_[j];
 				}
 
-				ode(t0 + h * c_[i], s_, S_, ~u, k_[i], K_[i]);
+				ode(t0 + h * c_[i], s_, S_, *u, k_[i], K_[i]);
 				xf_ += h * b_[i] * k_[i];
 				Sf_ += h * b_[i] * K_[i];
 			}
 
-			~xf = xf_;
-			~Sf = Sf_;
+			*xf = xf_;
+			*Sf = Sf_;
 		}
 
 
 		/// @brief Integrate an ODE and calculate forward sensitivities,
 		/// gradient, and Gauss-Newton Hessian approximation of the integral of least-squares Lagrange term.
-		template <typename ODE, 
+		template <typename ODE,
 			typename VT1,
 			typename MT1, bool SO1,
 			typename VT2,
@@ -141,9 +141,9 @@ namespace tmpc
 			typename VT4,
 			typename MT3, bool SO3>
 		void operator()(ODE const& ode, Real t0, Real h,
-			blaze::Vector<VT1, blaze::columnVector> const& x0, 
+			blaze::Vector<VT1, blaze::columnVector> const& x0,
 			blaze::Matrix<MT1, SO1> const& S,
-			blaze::Vector<VT2, blaze::columnVector> const& u, 
+			blaze::Vector<VT2, blaze::columnVector> const& u,
 			blaze::Vector<VT3, blaze::columnVector>& xf,
 			blaze::Matrix<MT2, SO2>& Sf,
 			Real& l,
@@ -160,13 +160,13 @@ namespace tmpc
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid size of xf"));
 
 
-			xf_ = ~x0;
-			Sf_ = ~S;
+			xf_ = *x0;
+			Sf_ = *S;
 
 			for (size_t i = 0; i < m_; ++i)
 			{
-				s_ = ~x0;
-				S_ = ~S;
+				s_ = *x0;
+				S_ = *S;
 
 				for (size_t j = 0; j < i; ++j)
 				{
@@ -174,17 +174,17 @@ namespace tmpc
 					S_ += h * A_(i, j) * K_[j];
 				}
 
-				ode(t0 + h * c_[i], s_, S_, ~u, k_[i], K_[i], r_, J_);
+				ode(t0 + h * c_[i], s_, S_, *u, k_[i], K_[i], r_, J_);
 				xf_ += h * b_[i] * k_[i];
 				Sf_ += h * b_[i] * K_[i];
-				
+
 				l += h * b_[i] * sqrNorm(r_) / 2.;
-				~g += h * b_[i] * trans(J_) * r_;
-				~H += h * b_[i] * trans(J_) * J_;
+				*g += h * b_[i] * trans(J_) * r_;
+				*H += h * b_[i] * trans(J_) * J_;
 			}
 
-			~xf = xf_;
-			~Sf = Sf_;
+			*xf = xf_;
+			*Sf = Sf_;
 		}
 
 
@@ -197,7 +197,7 @@ namespace tmpc
 		blaze::DynamicMatrix<Real, blaze::rowMajor> A_;
 		blaze::DynamicVector<Real, blaze::rowVector> b_;
 		blaze::DynamicVector<Real, blaze::columnVector> c_;
-		
+
 		mutable blaze::DynamicVector<Real> s_;
 		mutable blaze::DynamicMatrix<Real> S_;
 

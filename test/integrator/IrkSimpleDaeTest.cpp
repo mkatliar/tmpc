@@ -17,18 +17,18 @@ namespace tmpc :: testing
 	{
 	protected:
 		using Real = double;
-		
+
 		static size_t constexpr NX = 1;
 		static size_t constexpr NZ = 1;
 		static size_t constexpr NU = 0;
 		static size_t constexpr NR = 2;
 
-		
+
 		IrkSimpleDaeTest()
 		{
 			diagonal(S_) = 1.;
 		}
-		
+
 
 		template <typename Method>
 		void testIntegrate(Method const& method, double abs_tol, double rel_tol)
@@ -76,8 +76,8 @@ namespace tmpc :: testing
 			Real l = 0.;
 			blaze::DynamicVector<Real> g(NX + NU, 0.);
 			blaze::DynamicMatrix<Real> H(NX + NU, NX + NU, 0.);
-			
-			integrate(irk, 
+
+			integrate(irk,
 				[this] (auto&&... args) { this->implicitDae(std::forward<decltype(args)>(args)...); },
 				[this] (auto&&... args) { this->implicitDaeSensitivity(std::forward<decltype(args)>(args)...); },
 				[this] (auto&&... args) { this->residual(std::forward<decltype(args)>(args)...); },
@@ -99,7 +99,7 @@ namespace tmpc :: testing
 		VecU const u_ {};
 		Real const T_ = 1.;
 		size_t const numSteps_ = 100;
-		
+
 		VecX xf_ref_;
 		blaze::DynamicMatrix<Real> Sf_ref_ {NX, NX + NU};
 		blaze::DynamicMatrix<Real> S_ {NX, NX + NU, 0.};
@@ -144,24 +144,24 @@ namespace tmpc :: testing
 			if (size(xdot) != NX || size(x) != NX || size(z) != NZ || size(u) != NU)
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
 
-			auto const z_hat = (~z)[0] + 1.;
+			auto const z_hat = (*z)[0] + 1.;
 
-			~f = {
-				(~xdot)[0] + z_hat,
-				(~x)[0] - pow(z_hat, 2),
+			*f = {
+				(*xdot)[0] + z_hat,
+				(*x)[0] - pow(z_hat, 2),
 			};
-			
-			~Jxdot = {
+
+			*Jxdot = {
 				{1.},
 				{0.}
 			};
 
-			~Jx = {
+			*Jx = {
 				{0.},
 				{1.}
 			};
 
-			~Jz = {
+			*Jz = {
 				{1.},
 				{-2. * z_hat}
 			};
@@ -187,9 +187,9 @@ namespace tmpc :: testing
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
 
 			resize(Sf, NX + NZ, NX + NU);
-			~Sf = {
+			*Sf = {
 				{0.},
-				{(~Sx)(0, 0)}
+				{(*Sx)(0, 0)}
 			};
 		};
 
@@ -203,7 +203,7 @@ namespace tmpc :: testing
 			typename VT4,
 			typename MT3, bool SO3
 		>
-		void residual(double t, 
+		void residual(double t,
 			blaze::Vector<VT1, blaze::columnVector> const& x,
 			blaze::Matrix<MT1, SO1> const& Sx,
 			blaze::Vector<VT2, blaze::columnVector> const& z,
@@ -215,16 +215,16 @@ namespace tmpc :: testing
 			if (size(x) != NX || size(z) != NZ || size(u) != NU)
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
 
-			auto const z_hat = (~z)[0] + 1.;
+			auto const z_hat = (*z)[0] + 1.;
 
-			~r = {
-				(~x)[0],
+			*r = {
+				(*x)[0],
 				3. * z_hat
 			};
 
-			~Sr = {
-				{(~Sx)(0, 0)},
-				{3. * (~Sz)(0, 0)}
+			*Sr = {
+				{(*Sx)(0, 0)},
+				{3. * (*Sz)(0, 0)}
 			};
 		}
 	};

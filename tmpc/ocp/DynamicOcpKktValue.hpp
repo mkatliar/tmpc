@@ -16,7 +16,7 @@ namespace tmpc
     {
     public:
         using Real = R;
-        
+
 
         template <OcpSize Size>
         DynamicOcpKktValue(Size const& size)
@@ -53,7 +53,7 @@ namespace tmpc
         template <typename VT>
         void gx(OcpVertex v, blaze::Vector<VT, blaze::columnVector> const& val)
         {
-            noresize(vertexData_[v].gx_) = ~val;
+            noresize(vertexData_[v].gx_) = *val;
         }
 
 
@@ -66,7 +66,7 @@ namespace tmpc
         template <typename VT>
         void gu(OcpVertex v, blaze::Vector<VT, blaze::columnVector> const& val)
         {
-            noresize(vertexData_[v].gu_) = ~val;
+            noresize(vertexData_[v].gu_) = *val;
         }
 
 
@@ -79,9 +79,9 @@ namespace tmpc
         template <typename VT>
         void c(OcpEdge e, blaze::Vector<VT, blaze::columnVector> const& val)
         {
-            noresize(edgeData_[e].c_) = ~val;
+            noresize(edgeData_[e].c_) = *val;
         }
-        
+
 
     private:
         struct VertexData

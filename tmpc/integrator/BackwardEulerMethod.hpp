@@ -14,9 +14,9 @@ namespace tmpc
             blaze::Vector<VT1, blaze::rowVector>& b,
             blaze::Vector<VT2, blaze::columnVector>& c) const
         {
-            ~A = {{1.}};
-            ~b = {1.};
-            ~c = {1.};
+            *A = {{1.}};
+            *b = {1.};
+            *c = {1.};
         }
 
 
