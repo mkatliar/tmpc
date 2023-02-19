@@ -51,14 +51,14 @@ find_package(Boost REQUIRED COMPONENTS exception)
 set(TMPC_WITH_CASADI ON CACHE BOOL "Build tmpc with CasADi generated function support classes")
 
 # TMPC_WITH_JSON
-set(TMPC_WITH_JSON ON CACHE BOOL "Build tmpc with JSON support")
+option(TMPC_WITH_JSON "Build tmpc with JSON support")
 
 add_subdirectory(blazefeo)
 add_subdirectory(src)
 add_subdirectory(examples)
 
 # TMPC_WITH_TEST
-set(TMPC_WITH_TEST ON CACHE BOOL "Build tmpc tests")
+option(TMPC_WITH_TEST "Build tmpc tests")
 
 if (TMPC_WITH_TEST)
     enable_testing()
@@ -66,7 +66,7 @@ if (TMPC_WITH_TEST)
 endif()
 
 # TMPC_WITH_BENCHMARK
-set(TMPC_WITH_BENCHMARK ON CACHE BOOL "Build tmpc benchmarks")
+option(TMPC_WITH_BENCHMARK "Build tmpc benchmarks")
 
 if (TMPC_WITH_BENCHMARK)
     add_subdirectory(bench)
