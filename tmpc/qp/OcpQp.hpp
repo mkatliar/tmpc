@@ -51,7 +51,7 @@ namespace tmpc
 
         for (auto v : vertices(lhs.graph()))
         {
-            lhs.Q(v, rhs.Q(v));
+            lhs.H(v, rhs.H(v));
             lhs.q(v, rhs.q(v));
             lhs.C(v, rhs.C(v));
             lhs.ld(v, rhs.ld(v));
@@ -62,8 +62,6 @@ namespace tmpc
 
         for (auto v : lhs.graph().branchVertices())
         {
-            lhs.R(v, rhs.R(v));
-            lhs.S(v, rhs.S(v));
             lhs.r(v, rhs.r(v));
             lhs.D(v, rhs.D(v));
             lhs.lu(v, rhs.lu(v));
