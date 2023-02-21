@@ -17,6 +17,7 @@ namespace tmpc :: testing
 		casadi_real const data[6] = {1.1, 2.1, 3.1, 1.2, 2.2, 3.2};
 
 		blaze::StaticMatrix<casadi_real, 3, 2> m;
+		randomize(m);
 		Sparsity(sparsity).decompress(data, m);
 
 		EXPECT_EQ(forcePrint(m), forcePrint(blaze::StaticMatrix<casadi_real, 3, 2> {
@@ -33,6 +34,7 @@ namespace tmpc :: testing
 		casadi_real const data[3] = {1.1, 2.2, 3.3};
 
 		blaze::StaticMatrix<casadi_real, 3, 2> m;
+		randomize(m);
 		Sparsity(sparsity).decompress(data, m);
 
 		EXPECT_EQ(forcePrint(m), forcePrint(blaze::StaticMatrix<casadi_real, 3, 2> {

@@ -38,9 +38,9 @@ namespace tmpc :: casadi
 		GeneratedFunction(GeneratedFunction const& rhs);
 
 		~GeneratedFunction();
-		
 
-		// MK: I am too lazy to implement the assignment operator at the moment, 
+
+		// MK: I am too lazy to implement the assignment operator at the moment,
 		// so I prevent it from being used.
 		// TODO: implement assignment and move-assignment.
 		GeneratedFunction& operator=(GeneratedFunction const& rhs) = delete;
@@ -55,7 +55,7 @@ namespace tmpc :: casadi
 		size_t const n_in () const noexcept { return size(sparsityIn_); }
 		size_t const n_out() const noexcept { return size(sparsityOut_); }
 
-		
+
 		int n_row_in(int ind) const
 		{
 			if (ind < 0 || ind >= n_in())
@@ -118,7 +118,7 @@ namespace tmpc :: casadi
 			if (sizeof...(ArgsOut) != n_out())
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Wrong number of output arguments"));
 
-			// Copy data from input arguments to dataIn_ arrays 
+			// Copy data from input arguments to dataIn_ arrays
 			// and/or set pointers, depending on the argument types.
 			copyIn(std::index_sequence_for<ArgsIn...>(), in);
 
@@ -137,16 +137,16 @@ namespace tmpc :: casadi
 	private:
 		struct Functions
 		{
-			Functions(casadi_functions const * f) 
+			Functions(casadi_functions const * f)
 			:	f_(f)
-			{ 
-				f_->incref(); 
+			{
+				f_->incref();
 			}
 
 
-			Functions(Functions const& f) 
+			Functions(Functions const& f)
 			:	f_(f.f_)
-			{ 
+			{
 				f_->incref();
 			}
 
@@ -164,9 +164,9 @@ namespace tmpc :: casadi
 			}
 
 
-			~Functions() 
-			{ 
-				f_->decref(); 
+			~Functions()
+			{
+				f_->decref();
 			}
 
 			casadi_functions const * f_;
@@ -222,7 +222,7 @@ namespace tmpc :: casadi
 		void copyIn(size_t i, casadi_real const& arg) const
 		{
 			if (sparsityIn_[i].nnz() != 1)
-				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid size of input argument " 
+				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid size of input argument "
 					+ std::to_string(i) + " in CasADi function " + name()));
 
 			arg_[i] = &arg;
@@ -259,7 +259,7 @@ namespace tmpc :: casadi
 		void setOutPtr(size_t i, casadi_real& arg) const
 		{
 			if (sparsityOut_[i].nnz() != 1)
-				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid size of output argument " 
+				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid size of output argument "
 					+ std::to_string(i) + " in CasADi function " + name()));
 
 			res_[i] = &arg;
@@ -282,14 +282,14 @@ namespace tmpc :: casadi
 		template <typename MT, bool SO>
 		void copyOut(size_t i, blaze::Matrix<MT, SO>& arg) const
 		{
-			sparsityOut_[i].decompress(res_[i], arg);
+			sparsityOut_[i].decompress(res_[i], *arg);
 		}
 
 
 		template <typename VT, bool TF>
 		void copyOut(size_t i, blaze::Vector<VT, TF>& arg) const
 		{
-			sparsityOut_[i].decompress(res_[i], arg);
+			sparsityOut_[i].decompress(res_[i], *arg);
 		}
 
 

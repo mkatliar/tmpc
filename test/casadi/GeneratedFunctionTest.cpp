@@ -1,3 +1,4 @@
+#include <blaze/math/StorageOrder.h>
 #include <tmpc/casadi/GeneratedFunction.hpp>
 #include <tmpc/Testing.hpp>
 
@@ -16,12 +17,13 @@ namespace tmpc :: testing
 	using blaze::StaticMatrix;
 	using blaze::StaticVector;
 	using blaze::columnMajor;
+	using blaze::rowMajor;
 	using blaze::rowVector;
 	using blaze::columnVector;
-	using namespace tmpc :: casadi;	
+	using namespace tmpc :: casadi;
 
 
-	class GeneratedFunctionTest 
+	class GeneratedFunctionTest
 	: 	public Test
 	{
 	protected:
@@ -95,7 +97,7 @@ namespace tmpc :: testing
 			1., 3., 5.,
 			2., 4., 6.
 		};
-		
+
 		Real const B[2 * 2] = {
 			7., 9.,
 			8., 10.
@@ -157,7 +159,7 @@ namespace tmpc :: testing
 
 		std::random_device rd;  //Will be used to obtain a seed for the random number engine
 		std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-		std::uniform_real_distribution<> dis(-1.0, 1.0);	
+		std::uniform_real_distribution<> dis(-1.0, 1.0);
 
 		for (size_t i = 0; i < N; ++i)
 		{
@@ -173,7 +175,7 @@ namespace tmpc :: testing
 		for (size_t i = 0; i < N; ++i)
 			fun_(std::tie(A[i], B[i], x[i]), std::tie(X_ref[i], Y_ref[i]));
 
-		// Evaluate the function in parallel. 
+		// Evaluate the function in parallel.
 		// Set high number of threads to maximize probability of collisions.
 		#pragma omp parallel num_threads(100) firstprivate(fun_)
 		{
@@ -191,7 +193,7 @@ namespace tmpc :: testing
 	}
 
 
-	TEST_F(GeneratedFunctionTest, testMatrixArgumentCall)
+	TEST_F(GeneratedFunctionTest, testColumnMajorMatrixArgumentCall)
 	{
 		StaticMatrix<Real, 3, 2, columnMajor> A {
 			{1., 2.},
@@ -209,6 +211,34 @@ namespace tmpc :: testing
 		//blaze::randomize(x);
 
 		StaticMatrix<Real, 3, 2> X;
+		StaticVector<Real, 2, rowVector> Y;
+
+		// fun_(std::tie(A, B, x));
+		fun_(std::tie(A, B, x), std::tie(X, Y));
+
+		TMPC_EXPECT_EQ(X, (A * x) * B);
+		TMPC_EXPECT_EQ(Y, (StaticVector<Real, 3, rowVector> {1., 1., 1.} * (A * B)));
+	}
+
+
+	TEST_F(GeneratedFunctionTest, testRowMajorMatrixArgumentCall)
+	{
+		StaticMatrix<Real, 3, 2, rowMajor> A {
+			{1., 2.},
+			{3., 4.},
+			{5., 6.}
+		};
+		StaticMatrix<Real, 2, 2, rowMajor> B {
+			{7., 8.},
+			{9., 10.}
+		};
+		Real x = 0.1;
+
+		//randomize(A);
+		//randomize(B);
+		//blaze::randomize(x);
+
+		StaticMatrix<Real, 3, 2, rowMajor> X;
 		StaticVector<Real, 2, rowVector> Y;
 
 		// fun_(std::tie(A, B, x));
