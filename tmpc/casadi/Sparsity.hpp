@@ -54,10 +54,14 @@ namespace tmpc :: casadi
         /// is resolved, we probably can use a wrapper for the compressed column storage (CCS) format
         /// profided by Blaze. Before that, we use functions which copy data to and from CSS arrays.
         template <typename MT, bool SO>
-        inline void decompress(casadi_real const * data, blaze::Matrix<MT, SO>& m) const
+        inline void decompress(casadi_real const * data, blaze::DenseMatrix<MT, SO>& m) const
         {
             if ((*m).rows() != rows_ || (*m).columns() != columns_)
                 TMPC_THROW_EXCEPTION(std::invalid_argument("Matrix size does not match the sparsity pattern"));
+
+            // Fill the entire output matrix with 0 before populating non-zero elements.
+            // This might be not performance optimal, but it is necessary to reset elements which are 0 in the sparity pattern.
+            reset(*m);
 
             casadi_int ind = 0;
             for (size_t j = 0; j < columns_; ++j)
@@ -69,10 +73,14 @@ namespace tmpc :: casadi
 
 
         template <typename VT>
-        inline void decompress(casadi_real const * data, blaze::Vector<VT, blaze::columnVector>& v) const
+        inline void decompress(casadi_real const * data, blaze::DenseVector<VT, blaze::columnVector>& v) const
         {
             if (size(v) != rows_ || 1 != columns_)
                 TMPC_THROW_EXCEPTION(std::invalid_argument("Vector size does not match the sparsity pattern"));
+
+            // Fill the entire output vector with 0 before populating non-zero elements.
+            // This might be not performance optimal, but it is necessary to reset elements which are 0 in the sparity pattern.
+            reset(*v);
 
             casadi_int ind = 0;
             for (size_t j = 0; j < columns_; ++j)
@@ -84,10 +92,14 @@ namespace tmpc :: casadi
 
 
         template <typename VT>
-        inline void decompress(casadi_real const * data, blaze::Vector<VT, blaze::rowVector>& v) const
+        inline void decompress(casadi_real const * data, blaze::DenseVector<VT, blaze::rowVector>& v) const
         {
             if (1 != rows_ || size(v) != columns_)
                 TMPC_THROW_EXCEPTION(std::invalid_argument("Vector size does not match the sparsity pattern"));
+
+            // Fill the entire output vector with 0 before populating non-zero elements.
+            // This might be not performance optimal, but it is necessary to reset elements which are 0 in the sparity pattern.
+            reset(*v);
 
             casadi_int ind = 0;
             for (size_t j = 0; j < columns_; ++j)
