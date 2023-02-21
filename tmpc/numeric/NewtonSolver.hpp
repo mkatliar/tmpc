@@ -68,7 +68,7 @@ namespace tmpc
 
                 // Do backtracking search.
                 // alpha == 1. disables backtracking.
-                while (fun(x1_ = *xf + t * d_, r1_, J_), ++functionEvaluations_, alpha_ < 1. && !allAbsLessThan(r1_, r_))
+                while (fun(x1_ = *xf + t * d_, r1_, J_), ++functionEvaluations_, alpha_ < 1. && !residualDecreased(r1_, r_))
                     t *= alpha_;
                 factorizeJacobian();
 
@@ -226,15 +226,15 @@ namespace tmpc
 
 
         template <typename VT1, typename VT2, bool TF>
-        static bool allAbsLessThan(blaze::Vector<VT1, TF> const& a, blaze::Vector<VT2, TF> const& b)
+        bool residualDecreased(blaze::Vector<VT1, TF> const& r1, blaze::Vector<VT2, TF> const& r0) const
         {
-            size_t const n = size(a);
+            size_t const n = size(r1);
 
-            if (n != size(b))
+            if (n != size(r0))
                 TMPC_THROW_EXCEPTION(std::invalid_argument("Vector sizes don't match"));
 
             size_t i = 0;
-            while (i < n && abs((*a)[i]) < abs((*b)[i]))
+            while (i < n && abs((*r1)[i]) < residualTolerance_ || abs((*r1)[i]) < abs((*r0)[i]))
                 ++i;
 
             return i >= n;
