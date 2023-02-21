@@ -230,6 +230,20 @@ namespace tmpc
 		}
 
 
+		/// @brief Get Newton method residual tolerance
+		Real newtonResidualTolerance() const
+		{
+			return newtonSolver_.residualTolerance();
+		}
+
+
+		/// @brief Set Newton method residual tolerance
+		void newtonResidualTolerance(Real val)
+		{
+			newtonSolver_.residualTolerance(val);
+		}
+
+
 		/// @brief Get max number of Newton iterations
 		size_t newtonMaxIterations() const
 		{
