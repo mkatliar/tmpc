@@ -32,7 +32,7 @@
 #
 
 from typing import Any, Dict
-from casadi import SX, vertcat, sin, cos, Function, jacobian
+import casadi as cs
 
 def make_pendulum_ode_model() -> Dict[str, Any]:
 
@@ -45,29 +45,29 @@ def make_pendulum_ode_model() -> Dict[str, Any]:
     l = 0.8 # length of the rod [m]
 
     # set up states & controls
-    x1      = SX.sym('x1')
-    theta   = SX.sym('theta')
-    v1      = SX.sym('v1')
-    dtheta  = SX.sym('dtheta')
+    x1      = cs.SX.sym('x1')
+    theta   = cs.SX.sym('theta')
+    v1      = cs.SX.sym('v1')
+    dtheta  = cs.SX.sym('dtheta')
 
-    x = vertcat(x1, theta, v1, dtheta)
+    x = cs.vertcat(x1, theta, v1, dtheta)
 
-    F = SX.sym('F')
-    u = vertcat(F)
+    F = cs.SX.sym('F')
+    u = cs.vertcat(F)
 
     # xdot
-    x1_dot      = SX.sym('x1_dot')
-    theta_dot   = SX.sym('theta_dot')
-    v1_dot      = SX.sym('v1_dot')
-    dtheta_dot  = SX.sym('dtheta_dot')
+    x1_dot      = cs.SX.sym('x1_dot')
+    theta_dot   = cs.SX.sym('theta_dot')
+    v1_dot      = cs.SX.sym('v1_dot')
+    dtheta_dot  = cs.SX.sym('dtheta_dot')
 
-    xdot = vertcat(x1_dot, theta_dot, v1_dot, dtheta_dot)
+    xdot = cs.vertcat(x1_dot, theta_dot, v1_dot, dtheta_dot)
 
     # dynamics
-    cos_theta = cos(theta)
-    sin_theta = sin(theta)
+    cos_theta = cs.cos(theta)
+    sin_theta = cs.sin(theta)
     denominator = M + m - m*cos_theta*cos_theta
-    f_expl = vertcat(v1,
+    f_expl = cs.vertcat(v1,
                      dtheta,
                      (-m*l*sin_theta*dtheta*dtheta + m*g*cos_theta*sin_theta+F)/denominator,
                      (-m*l*cos_theta*sin_theta*dtheta*dtheta + F*cos_theta+(M+m)*g*sin_theta)/(l*denominator)
@@ -88,17 +88,27 @@ def make_pendulum_ode_model() -> Dict[str, Any]:
 def functions():
     model = make_pendulum_ode_model()
 
-    t = SX.sym("t")
+    t = cs.SX.sym("t")
     xdot = model["xdot"]
     x = model["x"]
-    z = SX.sym("z", 0)
+    z = cs.SX.sym("z", 0)
     u = model["u"]
     f_impl = model["f_impl_expr"]
 
+    nx = x.numel()
+    nz = z.numel()
+    nu = u.numel()
+    Sx = cs.SX.sym("Sx", nx + nz, nx + nu)
+
     return [
-        Function(
-            model["name"],
+        cs.Function(
+            "impl_dae",
             [t, xdot, x, z, u],
-            [f_impl, jacobian(f_impl, xdot), jacobian(f_impl, x), jacobian(f_impl, z)]
+            [f_impl, cs.jacobian(f_impl, xdot), cs.jacobian(f_impl, x), cs.jacobian(f_impl, z)]
+        ),
+        cs.Function(
+            "impl_dae_s",
+            [t, xdot, x, Sx, z, u],
+            [cs.jtimes(f_impl, x, Sx) + cs.horzcat(cs.SX.zeros(nx, nx), cs.jacobian(f_impl, u))]
         )
     ]

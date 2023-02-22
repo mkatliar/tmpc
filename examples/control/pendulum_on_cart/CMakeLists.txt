@@ -9,6 +9,7 @@ add_library(example-pendulum_on_cart-model STATIC
     "${GENERATED_SRCS}"
     "${GENERATED_HDRS}"
     CasadiImplicitDae.cpp
+    CasadiImplicitDaeS.cpp
 )
 
 target_link_libraries(example-pendulum_on_cart-model

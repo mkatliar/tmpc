@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "CasadiImplicitDae.hpp"
+#include "CasadiImplicitDaeS.hpp"
 
 #include <pendulum_model.h>
 
 
-CasadiImplicitDae::CasadiImplicitDae()
-:   tmpc::casadi::GeneratedImplicitDae {impl_dae_functions()}
+CasadiImplicitDaeS::CasadiImplicitDaeS()
+:   casadiDae_ {impl_dae_s_functions()}
 {
 }

@@ -14,7 +14,10 @@
 
 #include "ModelDimensions.hpp"
 #include "CasadiImplicitDae.hpp"
+#include "CasadiImplicitDaeS.hpp"
 
+#include <blaze/math/dense/StaticVector.h>
+#include <blaze/math/views/Forward.h>
 #include <tmpc/integrator/ImplicitRungeKutta.hpp>
 #include <tmpc/integrator/GaussRadauIIAMethod.hpp>
 
@@ -28,18 +31,24 @@ int main(int, char **)
     double constexpr time_step = 0.1;
 
     CasadiImplicitDae dae;
+    CasadiImplicitDaeS dae_s;
     tmpc::ImplicitRungeKutta<double> irk {tmpc::GaussRadauIIAMethod {3}, NX, NZ, NU};
 
     blaze::StaticVector<double, NX> const x0 {0.0, M_PI + 1., 0.0, 0.0};
     blaze::StaticVector<double, NU> const u {0.};
     blaze::StaticVector<double, NX> x = x0;
+    blaze::StaticMatrix<double, NX + NZ, NX + NU> Sxu, Sf;
 
     std::cout << std::scientific << trans(x);
     for (std::size_t i = 0; i < N; ++i)
     {
-        tmpc::integrate(irk, dae,	0., time_step, num_integrator_steps, x, u, x);
+        Sxu = 0.;
+        blaze::diagonal(Sxu) = 1.;
+        tmpc::integrate(irk, dae, dae_s, 0., time_step, num_integrator_steps, x, Sxu, u, x, Sf);
         std::cout << std::scientific << trans(x);
     }
+
+    std::cout << "S_forw, sensitivities of simulation result wrt x,u:\n" << Sf;
 
     return 0;
 }
