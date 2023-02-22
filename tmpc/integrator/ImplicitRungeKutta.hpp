@@ -366,14 +366,14 @@ namespace tmpc
 		template <
 			typename DAE_S,
 			typename VT1,
-			typename MT, bool TF,
+			typename MT, bool SO,
 			typename VT2
 		>
 		auto newtonParamSensitivity(
 			DAE_S const& dae_s,
 			Real t0, Real h,
 			blaze::Vector<VT1, blaze::columnVector> const& x0,
-			blaze::Matrix<MT, TF> const& Sx,
+			blaze::Matrix<MT, SO> const& Sx,
 			blaze::Vector<VT2, blaze::columnVector> const& u) const
 		{
 			return [this, &dae_s, t0, h, &Sx, &u] (auto const& kz, auto& df_dp)
