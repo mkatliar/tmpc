@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <pendulum_model.h>
+#include "ModelDimensions.hpp"
+#include "CasadiImplicitDae.hpp"
 
-#include <tmpc/casadi/GeneratedImplicitDae.hpp>
 #include <tmpc/integrator/ImplicitRungeKutta.hpp>
 #include <tmpc/integrator/GaussRadauIIAMethod.hpp>
 
@@ -23,13 +23,12 @@
 
 int main(int, char **)
 {
-    std::size_t constexpr NX = 4, NU = 1;
     std::size_t constexpr N = 200;
     std::size_t constexpr num_integrator_steps = 3;
     double constexpr time_step = 0.1;
 
-    tmpc::casadi::GeneratedImplicitDae dae {pendulum_ode_functions()};
-    tmpc::ImplicitRungeKutta<double> irk {tmpc::GaussRadauIIAMethod {3}, NX, 0, NU};
+    CasadiImplicitDae dae;
+    tmpc::ImplicitRungeKutta<double> irk {tmpc::GaussRadauIIAMethod {3}, NX, NZ, NU};
 
     blaze::StaticVector<double, NX> const x0 {0.0, M_PI + 1., 0.0, 0.0};
     blaze::StaticVector<double, NU> const u {0.};
