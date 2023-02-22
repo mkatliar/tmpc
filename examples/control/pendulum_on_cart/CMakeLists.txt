@@ -37,10 +37,12 @@ target_link_libraries(example-pendulum_on_cart-simulate
     add_executable(example-pendulum_on_cart-benchmark
         BenchmarkMain.cpp
         BenchmarkCasadiDae.cpp
+        BenchmarkIrk.cpp
     )
 
     target_link_libraries(example-pendulum_on_cart-benchmark
         example-pendulum_on_cart-model
         benchmark::benchmark
+        BLAS::BLAS
     )
 # endif ()
