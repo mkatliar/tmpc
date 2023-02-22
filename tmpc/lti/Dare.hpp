@@ -50,17 +50,17 @@ namespace tmpc
             //        H - t J  =  [ -Q   E' -S  ]  - t  [ 0   A'  0 ]
             //                    [  S'  0   R  ]       [ 0  -B'  0 ]
 
-            submatrix(H_, 0, 0, nx_, nx_) = ~A;
-            submatrix(H_, 0, 2 * nx_, nx_, nu_) = ~B;
-            submatrix(H_, nx_, 0, nx_, nx_) = -(~Q);
+            submatrix(H_, 0, 0, nx_, nx_) = *A;
+            submatrix(H_, 0, 2 * nx_, nx_, nu_) = *B;
+            submatrix(H_, nx_, 0, nx_, nx_) = -(*Q);
             submatrix(H_, nx_, nx_, nx_, nx_) = blaze::IdentityMatrix<Real>(nx_);
-            // submatrix(H_, nx_, 2 * nx_, nx_, nu_) = -(~S);
-            // submatrix(H_, 2 * nx_, 0, nu_, nx_) = trans(~S);
-            submatrix(H_, 2 * nx_, 2 * nx_, nu_, nu_) = ~R;
+            // submatrix(H_, nx_, 2 * nx_, nx_, nu_) = -(*S);
+            // submatrix(H_, 2 * nx_, 0, nu_, nx_) = trans(*S);
+            submatrix(H_, 2 * nx_, 2 * nx_, nu_, nu_) = *R;
 
             submatrix(J_, 0, 0, nx_, nx_) = blaze::IdentityMatrix<Real>(nx_);
-            submatrix(J_, nx_, nx_, nx_, nx_) = trans(~A);
-            submatrix(J_, 2 * nx_, nx_, nu_, nx_) = -trans(~B);
+            submatrix(J_, nx_, nx_, nx_, nx_) = trans(*A);
+            submatrix(J_, 2 * nx_, nx_, nu_, nx_) = -trans(*B);
 
             // Compression step on H(:,n2+1:n2+m) = [S1;-S2;R]
             if (nu_ > 0)
@@ -75,7 +75,7 @@ namespace tmpc
 
             // Perform Schur decomposition and reorder matrix elements and eigenvalues
             // such that the eigeivalues outside the unit disk go first.
-            gges(J_compr_, H_compr_, QZ_q_, QZ_alpha_, QZ_beta_, QZ_z_, 
+            gges(J_compr_, H_compr_, QZ_q_, QZ_alpha_, QZ_beta_, QZ_z_,
                 []( Real const * alphar, Real const * alphai, Real const * beta ) -> int
                 {
                     return outsideUnitDisk({*alphar, *alphai}, *beta);
@@ -93,7 +93,7 @@ namespace tmpc
             gesv(X1, X2, ipiv_.get());
 
             // Symmetrize
-            ~X = 0.5 * (X2 + trans(X2));
+            *X = 0.5 * (X2 + trans(X2));
         }
 
 
@@ -134,22 +134,22 @@ namespace tmpc
 
 
         /// @brief Checks for proper extraction of stable invariant subspace.
-        template <typename MT1, bool SO1, typename MT2, bool SO2, 
+        template <typename MT1, bool SO1, typename MT2, bool SO2,
             typename VT1, bool TF1, typename VT2, bool TF2, typename MT3, bool SO3>
         void areCheckout(blaze::Matrix<MT1, SO1> const& X1, blaze::Matrix<MT2, SO2> const& X2,
             blaze::Vector<VT1, TF1> const& alpha, blaze::Vector<VT2, TF2> const& beta,
             blaze::Matrix<MT3, SO3>& X12) const
         {
-            ~X12 = trans(~X1) * (~X2);
-            auto const asym = l1Norm(~X12 - trans(~X12));
+            *X12 = trans(*X1) * (*X2);
+            auto const asym = l1Norm(*X12 - trans(*X12));
 
             // Check that first nx_ eigenvalues are outside the unit disk, and the other nx_ are inside the unit disk.
             bool eigenvalues_ok = true;
             for (size_t i = 0; i < 2 * nx_ && eigenvalues_ok; ++i)
-                eigenvalues_ok = eigenvalues_ok && (outsideUnitDisk((~alpha)[i], (~beta)[i]) == i < nx_);
+                eigenvalues_ok = eigenvalues_ok && (outsideUnitDisk((*alpha)[i], (*beta)[i]) == i < nx_);
 
             // Check solution asymmetry
-            if (!eigenvalues_ok || asym > std::max(1e-3 * std::numeric_limits<Real>::epsilon(), 0.1 * l1Norm(~X12)))
+            if (!eigenvalues_ok || asym > std::max(1e-3 * std::numeric_limits<Real>::epsilon(), 0.1 * l1Norm(*X12)))
                 BOOST_THROW_EXCEPTION(std::runtime_error(
                     "Could not (reliably) isolate stable invariant subspace of dimension " + std::to_string(nx_)));
 
