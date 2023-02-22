@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tmpc/Exception.hpp>
 #include <tmpc/integrator/ExplicitIntegrator.hpp>
 #include <tmpc/integrator/ImplicitIntegrator.hpp>
 #include <tmpc/Testing.hpp>
