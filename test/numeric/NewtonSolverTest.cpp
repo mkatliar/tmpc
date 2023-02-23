@@ -1,4 +1,4 @@
-#include <tmpc/numeric/NewtonSolver.hpp>
+#include <tmpc/numeric/DynamicNewtonSolver.hpp>
 #include <tmpc/numeric/StaticNewtonSolver.hpp>
 #include <tmpc/Testing.hpp>
 
@@ -297,28 +297,28 @@ namespace tmpc :: testing
 
     TEST_F(NewtonSolverTest, testSolveDynamic)
     {
-        NewtonSolver<Real> solver {2};
+        DynamicNewtonSolver<Real> solver {2};
         testSolve(solver);
     }
 
 
     TEST_F(NewtonSolverTest, testSolutionSensitivityScalarQuadraticDynamic)
     {
-        NewtonSolver<Real> solver {1};
+        DynamicNewtonSolver<Real> solver {1};
         testSolutionSensitivityScalarQuadratic(solver);
     }
 
 
     TEST_F(NewtonSolverTest, testSolutionSensitivityVectorLinearDynamic)
     {
-        NewtonSolver<Real> solver {2};
+        DynamicNewtonSolver<Real> solver {2};
         testSolutionSensitivityVectorLinear(solver);
     }
 
 
     TEST_F(NewtonSolverTest, DISABLED_testRosenbrockLineSearchDynamic)
     {
-        NewtonSolver<Real> solver {2};
+        DynamicNewtonSolver<Real> solver {2};
         solver.maxIterations(20000);
         solver.backtrackingAlpha(0.5);
 
@@ -328,7 +328,7 @@ namespace tmpc :: testing
 
     TEST_F(NewtonSolverTest, testRosenbrockMultipleInitialPointsDynamic)
     {
-        NewtonSolver<Real> solver {2};
+        DynamicNewtonSolver<Real> solver {2};
         solver.residualTolerance(1e-10);
         solver.maxIterations(20);
 

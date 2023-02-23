@@ -8,12 +8,13 @@
 
 namespace tmpc
 {
-    /// @brief Newton method solver for systems of non-linear equations.
+    /// @brief Solves dynamically sized systems of non-linear equations with Newton method.
+    ///
     template <typename Real>
-    class NewtonSolver
+    class DynamicNewtonSolver
     {
     public:
-        explicit NewtonSolver(size_t nx)
+        explicit DynamicNewtonSolver(size_t nx)
         :   nx_(nx)
         ,   x1_(nx)
         ,   r_(nx)

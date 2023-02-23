@@ -1,6 +1,6 @@
 /// @brief Demonstrates the use of the Newton solver
 
-#include <tmpc/numeric/NewtonSolver.hpp>
+#include <tmpc/numeric/DynamicNewtonSolver.hpp>
 
 #include <iostream>
 
@@ -8,13 +8,13 @@
 int main(int, char **)
 {
     size_t constexpr NX = 2;
-        
+
     using Real = double;
     using Vec = blaze::StaticVector<Real, NX, blaze::columnVector>;
     using Mat = blaze::StaticMatrix<Real, NX, NX>;
 
     // Newton solver
-    tmpc::NewtonSolver<Real> solver(NX);
+    tmpc::DynamicNewtonSolver<Real> solver(NX);
     solver.maxIterations(200000);
     solver.backtrackingAlpha(0.5);
 
@@ -55,7 +55,7 @@ int main(int, char **)
     std::cout << "Rosenbrock problem solution: " << trans(x_star);
     std::cout << "Total number of Newton iterations: " << solver.iterations() << std::endl;
     std::cout << "Total number of function evaluations: " << solver.functionEvaluations() << std::endl;
-    std::cout << "Average number of function evaluations per Newton iteration: " 
+    std::cout << "Average number of function evaluations per Newton iteration: "
         << static_cast<double>(solver.functionEvaluations()) / solver.iterations() << std::endl;
 
     return 0;
