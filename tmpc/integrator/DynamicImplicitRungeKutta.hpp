@@ -121,7 +121,7 @@ namespace tmpc
 			// Calculating the value of the integral
 			*xf = x0;
 			for (size_t i = 0; i < m_; ++i)
-				*xf += h * b_[i] * subvector(kz_, i * nw_, nx_);
+				*xf += h * b_[i] * subvector(kz_, i * nw_, nx_, blaze::unchecked);
 		}
 
 
@@ -169,7 +169,7 @@ namespace tmpc
 				S(i) = *Sx;
 
 				for (size_t j = 0; j < m_; ++j)
-					S(i) += h * A_(i, j) * submatrix(K_, j * nw_, 0, nx_, nx_ + nu_);
+					S(i) += h * A_(i, j) * submatrix(K_, j * nw_, 0, nx_, nx_ + nu_, blaze::unchecked);
 			}
 
 			// Calculating the value of the integral and final state sensitivities
@@ -178,8 +178,8 @@ namespace tmpc
 
 			for (size_t i = 0; i < m_; ++i)
 			{
-				*xf += h * b_[i] * subvector(kz_, i * nw_, nx_);
-				*Sf += h * b_[i] * submatrix(K_, i * nw_, 0, nx_, nx_ + nu_);
+				*xf += h * b_[i] * subvector(kz_, i * nw_, nx_, blaze::unchecked);
+				*Sf += h * b_[i] * submatrix(K_, i * nw_, 0, nx_, nx_ + nu_, blaze::unchecked);
 			}
 		}
 
@@ -336,19 +336,19 @@ namespace tmpc
 				{
 					s(i) = *x0;
 					for (size_t j = 0; j < m_; ++j)
-						s(i) += h * A_(i, j) * subvector(kz, j * nw_, nx_);
+						s(i) += h * A_(i, j) * subvector(kz, j * nw_, nx_, blaze::unchecked);
 
-					auto const k_i = subvector(kz, i * nw_, nx_);
-					auto const z_i = subvector(kz, i * nw_ + nx_, nz_);
-					auto f = subvector(r, i * nw_, nw_);
-					auto Jxdot = submatrix(J, i * nw_, i * nw_, nw_, nx_);
-					auto Jz = submatrix(J, i * nw_, i * nw_ + nx_, nw_, nz_);
+					auto const k_i = subvector(kz, i * nw_, nx_, blaze::unchecked);
+					auto const z_i = subvector(kz, i * nw_ + nx_, nz_, blaze::unchecked);
+					auto f = subvector(r, i * nw_, nw_, blaze::unchecked);
+					auto Jxdot = submatrix(J, i * nw_, i * nw_, nw_, nx_, blaze::unchecked);
+					auto Jz = submatrix(J, i * nw_, i * nw_ + nx_, nw_, nz_, blaze::unchecked);
 					dae(t0 + c_[i] * h, k_i, s(i), z_i, *u, f, Jxdot, df_dx_, Jz);
 
 					for (size_t j = 0; j < m_; ++j)
 					{
-						auto Jx_ij = submatrix(J, i * nw_, j * nw_, nw_, nx_);
-						auto Jz_ij = submatrix(J, i * nw_, j * nw_ + nx_, nw_, nz_);
+						auto Jx_ij = submatrix(J, i * nw_, j * nw_, nw_, nx_, blaze::unchecked);
+						auto Jz_ij = submatrix(J, i * nw_, j * nw_ + nx_, nw_, nz_, blaze::unchecked);
 
 						if (j != i)
 						{
@@ -384,9 +384,9 @@ namespace tmpc
 				{
 					// NOTE: s(i) have valid values here,
 					// which have already been calculated while calculating the Newton residual.
-					auto const k_i = subvector(kz, i * nw_, nx_);
-					auto const z_i = subvector(kz, i * nw_ + nx_, nz_);
-					auto dfi_dxu = submatrix(df_dp, i * nw_, 0, nw_, nx_ + nu_);
+					auto const k_i = subvector(kz, i * nw_, nx_, blaze::unchecked);
+					auto const z_i = subvector(kz, i * nw_ + nx_, nz_, blaze::unchecked);
+					auto dfi_dxu = submatrix(df_dp, i * nw_, 0, nw_, nx_ + nu_, blaze::unchecked);
 					dae_s(t0 + c_[i] * h, k_i, s(i), *Sx, z_i, *u, dfi_dxu);
 				}
 			};
@@ -395,25 +395,25 @@ namespace tmpc
 
 		decltype(auto) s(size_t i) const
 		{
-			return subvector(s_, nx_ * i, nx_);
+			return subvector(s_, nx_ * i, nx_, blaze::unchecked);
 		}
 
 
 		decltype(auto) S(size_t i) const
 		{
-			return submatrix(S_, nx_ * i, 0, nx_, nx_ + nu_);
+			return submatrix(S_, nx_ * i, 0, nx_, nx_ + nu_, blaze::unchecked);
 		}
 
 
 		decltype(auto) z(size_t i) const
 		{
-			return subvector(kz_, nw_ * i + nx_, nz_);
+			return subvector(kz_, nw_ * i + nx_, nz_, blaze::unchecked);
 		}
 
 
 		decltype(auto) Z(size_t i) const
 		{
-			return submatrix(K_, nw_ * i + nx_, 0, nz_, nx_ + nu_);
+			return submatrix(K_, nw_ * i + nx_, 0, nz_, nx_ + nu_, blaze::unchecked);
 		}
 	};
 }
