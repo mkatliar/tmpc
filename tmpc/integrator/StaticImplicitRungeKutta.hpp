@@ -2,7 +2,7 @@
 
 #include <cstddef>
 #include <tmpc/integrator/ImplicitIntegrator.hpp>
-#include <tmpc/numeric/DynamicNewtonSolver.hpp>
+#include <tmpc/numeric/StaticNewtonSolver.hpp>
 
 #include <tmpc/Exception.hpp>
 
@@ -49,7 +49,6 @@ namespace tmpc
 		template <typename Method>
 		StaticImplicitRungeKutta(Method const& method)
 		:	kz_(Real {})
-		,	newtonSolver_(M * NW)
 		{
 			method.butcherTableau(A_, b_, c_);
 		}
@@ -320,7 +319,7 @@ namespace tmpc
 		// Holds the Jacobian of the residual
 		mutable blaze::StaticMatrix<Real, NY, NX + NU> Jr_;
 
-		mutable DynamicNewtonSolver<Real> newtonSolver_;
+		mutable StaticNewtonSolver<Real, M * NW> newtonSolver_;
 
 		// Use previous solution as the initial point in the Newton method
 		bool warmStart_ = false;
