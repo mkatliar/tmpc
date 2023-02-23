@@ -25,8 +25,8 @@ static void BM_casadiGeneratedImplicitDae(::benchmark::State& state)
     blaze::StaticVector<double, NZ> z;
     blaze::StaticVector<double, NU> u;
     blaze::StaticVector<double, NX + NZ> f;
-    blaze::StaticMatrix<double, NX + NZ, NX> Jx, Jxdot;
-    blaze::StaticMatrix<double, NX + NZ, NZ> Jz;
+    blaze::StaticMatrix<double, NX + NZ, NX, blaze::columnMajor> Jx, Jxdot;
+    blaze::StaticMatrix<double, NX + NZ, NZ, blaze::columnMajor> Jz;
 
     for (auto _ : state)
         dae(0., xdot, x, z, u, f, Jxdot, Jx, Jz);
