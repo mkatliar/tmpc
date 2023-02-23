@@ -34,6 +34,7 @@ add_executable(test-tmpc
     integrator/IrkSimpleDaeTest.cpp
     integrator/IrkMassSpringDamperTest.cpp
     integrator/IrkDecayTest.cpp
+    # integrator/IrkPendulumTest.cpp
 
     matrix/MatrixTest.cpp
     matrix/BlockMatrixViewTest.cpp
