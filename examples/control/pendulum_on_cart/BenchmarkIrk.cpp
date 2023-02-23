@@ -16,7 +16,7 @@
 #include "CasadiImplicitDaeS.hpp"
 #include "ModelDimensions.hpp"
 
-#include <tmpc/integrator/ImplicitRungeKutta.hpp>
+#include <tmpc/integrator/StaticImplicitRungeKutta.hpp>
 #include <tmpc/integrator/GaussRadauIIAMethod.hpp>
 
 #include <benchmark/benchmark.h>
@@ -26,7 +26,7 @@ static void BM_irkWithSensitivities(::benchmark::State& state)
 {
     CasadiImplicitDae dae;
     CasadiImplicitDaeS dae_s;
-    tmpc::ImplicitRungeKutta<double> irk {tmpc::GaussRadauIIAMethod {3}, NX, NZ, NU};
+    tmpc::StaticImplicitRungeKutta<double, 3, NX, NZ, NU> irk {tmpc::GaussRadauIIAMethod {3}};
 
     blaze::StaticVector<double, NX> const x0 {5.863919e-02, 3.176782e+00, -2.557677e-01, 3.518985e+00};
     blaze::StaticMatrix<double, NX, NX + NU> Sx(0.);
