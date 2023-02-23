@@ -2,7 +2,7 @@
 
 #include <cstddef>
 #include <tmpc/integrator/ImplicitIntegrator.hpp>
-#include <tmpc/numeric/NewtonSolver.hpp>
+#include <tmpc/numeric/DynamicNewtonSolver.hpp>
 
 #include <tmpc/Exception.hpp>
 
@@ -320,7 +320,7 @@ namespace tmpc
 		// Holds the Jacobian of the residual
 		mutable blaze::StaticMatrix<Real, NY, NX + NU> Jr_;
 
-		mutable NewtonSolver<Real> newtonSolver_;
+		mutable DynamicNewtonSolver<Real> newtonSolver_;
 
 		// Use previous solution as the initial point in the Newton method
 		bool warmStart_ = false;

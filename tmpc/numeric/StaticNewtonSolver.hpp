@@ -9,7 +9,7 @@
 
 namespace tmpc
 {
-    /// @brief Newton solver for statically sized problems.
+    /// @brief Solves statically sized systems of non-linear equations with Newton method.
     ///
     /// @tparam Real real number type
     /// @tparam NX number of variables
