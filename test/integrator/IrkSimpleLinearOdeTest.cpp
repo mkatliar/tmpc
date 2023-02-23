@@ -1,4 +1,4 @@
-#include <tmpc/integrator/ImplicitRungeKutta.hpp>
+#include <tmpc/integrator/DynamicImplicitRungeKutta.hpp>
 #include <tmpc/integrator/StaticImplicitRungeKutta.hpp>
 #include <tmpc/integrator/BackwardEulerMethod.hpp>
 #include <tmpc/integrator/GaussLegendreMethod.hpp>
@@ -46,19 +46,19 @@ namespace tmpc :: testing
 
 	TEST_F(IrkSimpleLinearOdeTest, testBackwardEulerDynamic)
 	{
-		testIntegrate_impl(ImplicitRungeKutta<Real> {BackwardEulerMethod {}, NX, NZ, NU}, 0., 0.002);
+		testIntegrate_impl(DynamicImplicitRungeKutta<Real> {BackwardEulerMethod {}, NX, NZ, NU}, 0., 0.002);
 	}
 
 
 	TEST_F(IrkSimpleLinearOdeTest, testGaussLegendre2Dynamic)
 	{
-		testIntegrate_impl(ImplicitRungeKutta<Real> {GaussLegendreMethod {2}, NX, NZ, NU}, 0., 1e-7);
+		testIntegrate_impl(DynamicImplicitRungeKutta<Real> {GaussLegendreMethod {2}, NX, NZ, NU}, 0., 1e-7);
 	}
 
 
 	TEST_F(IrkSimpleLinearOdeTest, testGaussLegendre3Dynamic)
 	{
-		testIntegrate_impl(ImplicitRungeKutta<Real> {GaussLegendreMethod {3}, NX, NZ, NU}, 0., 1e-14);
+		testIntegrate_impl(DynamicImplicitRungeKutta<Real> {GaussLegendreMethod {3}, NX, NZ, NU}, 0., 1e-14);
 	}
 
 	TEST_F(IrkSimpleLinearOdeTest, testBackwardEulerStatic)

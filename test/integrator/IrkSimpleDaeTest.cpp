@@ -1,6 +1,6 @@
 #include "tmpc/Exception.hpp"
 #include <stdexcept>
-#include <tmpc/integrator/ImplicitRungeKutta.hpp>
+#include <tmpc/integrator/DynamicImplicitRungeKutta.hpp>
 #include <tmpc/integrator/StaticImplicitRungeKutta.hpp>
 #include <tmpc/integrator/BackwardEulerMethod.hpp>
 #include <tmpc/integrator/GaussLegendreMethod.hpp>
@@ -230,52 +230,52 @@ namespace tmpc :: testing
 	};
 
 
-	TEST_F(IrkSimpleDaeTest, testBackwardEuler)
+	TEST_F(IrkSimpleDaeTest, testBackwardEulerDynamic)
 	{
-		ImplicitRungeKutta<Real> irk {BackwardEulerMethod {}, NX, NZ, NU};
+		DynamicImplicitRungeKutta<Real> irk {BackwardEulerMethod {}, NX, NZ, NU};
 		irk.warmStart(true);
 
 		testIntegrate(irk, 0., 0.007);
 	}
 
 
-	TEST_F(IrkSimpleDaeTest, testGaussLegendre2)
+	TEST_F(IrkSimpleDaeTest, testGaussLegendre2Dynamic)
 	{
-		ImplicitRungeKutta<Real> irk {GaussLegendreMethod {2}, NX, NZ, NU};
+		DynamicImplicitRungeKutta<Real> irk {GaussLegendreMethod {2}, NX, NZ, NU};
 		irk.warmStart(true);
 
 		testIntegrate(irk, 0., 1e-7);
 	}
 
 
-	TEST_F(IrkSimpleDaeTest, testGaussLegendre3)
+	TEST_F(IrkSimpleDaeTest, testGaussLegendre3Dynamic)
 	{
-		ImplicitRungeKutta<Real> irk {GaussLegendreMethod {3}, NX, NZ, NU};
+		DynamicImplicitRungeKutta<Real> irk {GaussLegendreMethod {3}, NX, NZ, NU};
 		irk.warmStart(true);
 
 		testIntegrate(irk, 0., 1e-12);
 	}
 
 
-	TEST_F(IrkSimpleDaeTest, testGaussLegendre3Sensitivities)
+	TEST_F(IrkSimpleDaeTest, testGaussLegendre3SensitivitiesDynamic)
 	{
-		ImplicitRungeKutta<Real> irk {GaussLegendreMethod {3}, NX, NZ, NU};
+		DynamicImplicitRungeKutta<Real> irk {GaussLegendreMethod {3}, NX, NZ, NU};
 		irk.warmStart(true);
 
 		testIntegrateWithSensitivities(irk, 0., 1e-12);
 	}
 
 
-	TEST_F(IrkSimpleDaeTest, testGaussLegendre3LeastSquaresLagrangeTerm)
+	TEST_F(IrkSimpleDaeTest, testGaussLegendre3LeastSquaresLagrangeTermDynamic)
 	{
-		ImplicitRungeKutta<Real> irk {GaussLegendreMethod {3}, NX, NZ, NU, NR};
+		DynamicImplicitRungeKutta<Real> irk {GaussLegendreMethod {3}, NX, NZ, NU, NR};
 		irk.warmStart(true);
 
 		testIntegrateLeastSquaresLagrangeTerm(irk, 0., 1e-12);
 	}
 
 
-	TEST_F(IrkSimpleDaeTest, testStaticBackwardEuler)
+	TEST_F(IrkSimpleDaeTest, testBackwardEulerStatic)
 	{
 		StaticImplicitRungeKutta<Real, 1, NX, NZ, NU> irk {BackwardEulerMethod {}};
 		irk.warmStart(true);
@@ -284,7 +284,7 @@ namespace tmpc :: testing
 	}
 
 
-	TEST_F(IrkSimpleDaeTest, testStaticGaussLegendre2)
+	TEST_F(IrkSimpleDaeTest, testGaussLegendre2Static)
 	{
 		StaticImplicitRungeKutta<Real, 2, NX, NZ, NU> irk {GaussLegendreMethod {2}};
 		irk.warmStart(true);
@@ -293,7 +293,7 @@ namespace tmpc :: testing
 	}
 
 
-	TEST_F(IrkSimpleDaeTest, testStaticGaussLegendre3)
+	TEST_F(IrkSimpleDaeTest, testGaussLegendre3Static)
 	{
 		StaticImplicitRungeKutta<Real, 3, NX, NZ, NU> irk {GaussLegendreMethod {3}};
 		irk.warmStart(true);
@@ -302,7 +302,7 @@ namespace tmpc :: testing
 	}
 
 
-	TEST_F(IrkSimpleDaeTest, testStaticGaussLegendre3Sensitivities)
+	TEST_F(IrkSimpleDaeTest, testGaussLegendre3SensitivitiesStatic)
 	{
 		StaticImplicitRungeKutta<Real, 3, NX, NZ, NU> irk {GaussLegendreMethod {3}};
 		irk.warmStart(true);
@@ -311,7 +311,7 @@ namespace tmpc :: testing
 	}
 
 
-	TEST_F(IrkSimpleDaeTest, testStaticGaussLegendre3LeastSquaresLagrangeTerm)
+	TEST_F(IrkSimpleDaeTest, testGaussLegendre3LeastSquaresLagrangeTermStatic)
 	{
 		StaticImplicitRungeKutta<Real, 3, NX, NZ, NU, NR> irk {GaussLegendreMethod {3}};
 		irk.warmStart(true);

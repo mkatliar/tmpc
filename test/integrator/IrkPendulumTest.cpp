@@ -1,4 +1,5 @@
-#include <tmpc/integrator/ImplicitRungeKutta.hpp>
+#include <tmpc/integrator/DynamicImplicitRungeKutta.hpp>
+#include <tmpc/integrator/StaticImplicitRungeKutta.hpp>
 #include <tmpc/integrator/BackwardEulerMethod.hpp>
 #include <tmpc/integrator/GaussLegendreMethod.hpp>
 #include <tmpc/Testing.hpp>
@@ -54,8 +55,8 @@ namespace tmpc :: testing
 			dm.ptr(), dm.size1(), dm.size2());
 	}
 
-	
-	class IrkPendulumTest 
+
+	class IrkPendulumTest
 	: 	public Test
 	{
 	protected:
@@ -76,14 +77,14 @@ namespace tmpc :: testing
     		casadi::MX q = vertcat(pow(omega, 2), phi);	// quadrature term
 
 			// Create integrator function
-			integrator_ = casadi::integrator("pendulum_integrator", "cvodes", 
+			integrator_ = casadi::integrator("pendulum_integrator", "cvodes",
 				casadi::MXDict {{"x", x}, {"p", u}, {"ode", dx}, {"quad", q}}, casadi::Dict {{"tf", h_}});
 
 
 			// Create ODE function
-			ode_ = casadi::Function("pendulum_ode", 
-				casadi::MXVector {t, x, u}, 
-                casadi::MXVector {densify(dx), densify(jacobian(dx, x)), densify(jacobian(dx, u)), 
+			ode_ = casadi::Function("pendulum_ode",
+				casadi::MXVector {t, x, u},
+                casadi::MXVector {densify(dx), densify(jacobian(dx, x)), densify(jacobian(dx, u)),
                     densify(q), densify(jacobian(q, x)), densify(jacobian(q, u))},
                 casadi::StringVector {"t", "x", "u"},
 				casadi::StringVector {"xdot", "A", "B", "q", "qA", "qB"});
@@ -118,57 +119,42 @@ namespace tmpc :: testing
 			casadi::DMDict in {{"t", t}, {"x", toDM(x)}, {"u", toDM(u)}};
 			casadi::DMDict out = ode_(in);
 
-			~xdot = asVector<blaze::columnVector>(out.at("xdot"));
-			~A = asMatrix(out.at("A"));
-			~B = asMatrix(out.at("B"));
+			*xdot = asVector<blaze::columnVector>(out.at("xdot"));
+			*A = asMatrix(out.at("A"));
+			*B = asMatrix(out.at("B"));
 		}
 
 
-		size_t nx() const
+		static size_t constexpr NX = 2;
+		static size_t constexpr NZ = 0;
+		static size_t constexpr NU = 1;
+
+
+		template <typename Integrator>
+		void testIntegrate(Integrator const& integrator, double abs_tol, double rel_tol)
 		{
-			return 2;
-		}
-
-
-		size_t nz() const
-		{
-			return 0;
-		}
-
-
-		size_t nu() const
-		{
-			return 1;
-		}
-
-
-		template <typename Method>
-		void testIntegrate(Method const& method, double abs_tol, double rel_tol)
-		{
-			ImplicitRungeKutta<double> irk(method, nx(), nz(), nu());
-
 			double t0 = 0.;
 
 			size_t const num_points = 1000;
-			blaze::DynamicVector<double, blaze::columnVector> x0(nx());
-			blaze::DynamicVector<double, blaze::columnVector> u(nu());
+			blaze::DynamicVector<double, blaze::columnVector> x0(NX);
+			blaze::DynamicVector<double, blaze::columnVector> u(NU);
 
 			for (size_t i = 0; i < num_points; ++i)
 			{
 				randomize(x0);
 				randomize(u);
 
-				blaze::DynamicVector<double> xf(nx());
-				irk(
+				blaze::DynamicVector<double> xf(NX);
+				integrator(
 					[this] (double t, auto const& xdot, auto const& x, auto const& z,
 						auto const& u, auto& f, auto& Jxdot, auto& Jx, auto& Jz)
 					{
-						blaze::DynamicMatrix<Real> df_du(nx(), nu());
+						blaze::DynamicMatrix<Real> df_du(NX, NU);
 						ode(t, x, u, f, Jx, df_du);
 
 						f -= xdot;
-						Jxdot = -blaze::IdentityMatrix<double>(nx());
-					}, 
+						Jxdot = -blaze::IdentityMatrix<double>(NX);
+					},
 					t0, h_, x0, u, xf
 				);
 
@@ -186,20 +172,38 @@ namespace tmpc :: testing
 	};
 
 
-	TEST_F(IrkPendulumTest, testBackwardEuler)
+	TEST_F(IrkPendulumTest, testBackwardEulerDynamic)
 	{
-		testIntegrate(BackwardEulerMethod(), 1e-3, 2e-3);
+		testIntegrate(DynamicImplicitRungeKutta<double> {BackwardEulerMethod {}, NX, NZ, NU}, 1e-3, 2e-3);
 	}
 
 
-	TEST_F(IrkPendulumTest, testGaussLegendre2)
+	TEST_F(IrkPendulumTest, testGaussLegendre2Dynamic)
 	{
-		testIntegrate(GaussLegendreMethod(2), 1e-6, 1e-4);
+		testIntegrate(DynamicImplicitRungeKutta<double> {GaussLegendreMethod(2), NX, NZ, NU}, 1e-6, 1e-4);
 	}
 
 
-	TEST_F(IrkPendulumTest, testGaussLegendre3)
+	TEST_F(IrkPendulumTest, testGaussLegendre3Dynamic)
 	{
-		testIntegrate(GaussLegendreMethod(3), 1e-6, 1e-5);
+		testIntegrate(DynamicImplicitRungeKutta<double> {GaussLegendreMethod {3}, NX, NZ, NU}, 1e-6, 1e-5);
+	}
+
+
+	TEST_F(IrkPendulumTest, testBackwardEulerStatic)
+	{
+		testIntegrate(StaticImplicitRungeKutta<double, 1, NX, NZ, NU> {BackwardEulerMethod {}}, 1e-3, 2e-3);
+	}
+
+
+	TEST_F(IrkPendulumTest, testGaussLegendre2Static)
+	{
+		testIntegrate(StaticImplicitRungeKutta<double, 2, NX, NZ, NU> {GaussLegendreMethod(2)}, 1e-6, 1e-4);
+	}
+
+
+	TEST_F(IrkPendulumTest, testGaussLegendre3Static)
+	{
+		testIntegrate(StaticImplicitRungeKutta<double, 3, NX, NZ, NU> {GaussLegendreMethod {3}}, 1e-6, 1e-5);
 	}
 }

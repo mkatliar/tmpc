@@ -1,4 +1,4 @@
-#include <tmpc/integrator/ImplicitRungeKutta.hpp>
+#include <tmpc/integrator/DynamicImplicitRungeKutta.hpp>
 #include <tmpc/integrator/BackwardEulerMethod.hpp>
 
 #include <tmpc/Testing.hpp>
@@ -11,9 +11,9 @@ namespace tmpc :: testing
 		using Real = double;
 
 		size_t const NX = 1, NZ = 0, NU = 1;
-		ImplicitRungeKutta<Real> irk(BackwardEulerMethod(), NX, NZ, NU);
+		DynamicImplicitRungeKutta<Real> irk(BackwardEulerMethod(), NX, NZ, NU);
 
-		auto foo_ode = [] (Real t, auto const& xdot, auto const& x, auto const& z, 
+		auto foo_ode = [] (Real t, auto const& xdot, auto const& x, auto const& z,
 			auto const& u, auto& f, auto& Jxdot, auto& Jx, auto& Jz)
 		{
 			f = 0.;
@@ -34,7 +34,7 @@ namespace tmpc :: testing
 		using Real = double;
 
 		size_t const NX = 1, NZ = 0, NU = 1;
-		ImplicitRungeKutta<Real> irk(BackwardEulerMethod(), NX, NZ, NU);
+		DynamicImplicitRungeKutta<Real> irk(BackwardEulerMethod(), NX, NZ, NU);
 
 		auto foo_ode = [] (Real t, auto const& xdot, auto const& x,
 			auto const& z, auto const& u, auto& f, auto& Jxdot, auto& Jx, auto& Jz)

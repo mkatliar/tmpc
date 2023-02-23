@@ -1,4 +1,4 @@
-#include <tmpc/integrator/ImplicitRungeKutta.hpp>
+#include <tmpc/integrator/DynamicImplicitRungeKutta.hpp>
 #include <tmpc/integrator/StaticImplicitRungeKutta.hpp>
 #include <tmpc/integrator/BackwardEulerMethod.hpp>
 #include <tmpc/integrator/GaussLegendreMethod.hpp>
@@ -14,31 +14,31 @@ namespace tmpc :: testing
 	//
 	//************************
 
-	TEST_F(MassSpringDamperTest, testGaussLegendre2)
+	TEST_F(MassSpringDamperTest, testGaussLegendre2Dynamic)
 	{
 		testIntegrate(
-			ImplicitRungeKutta<Real> {GaussLegendreMethod {2}, NX, NZ, NU, NR}
+			DynamicImplicitRungeKutta<Real> {GaussLegendreMethod {2}, NX, NZ, NU, NR}
 		);
 	}
 
 
-	TEST_F(MassSpringDamperTest, testGaussLegendre2Sensitivities)
+	TEST_F(MassSpringDamperTest, testGaussLegendre2SensitivitiesDynamic)
 	{
 		testIntegrateWithSensitivities(
-			ImplicitRungeKutta<Real> {GaussLegendreMethod {2}, NX, NZ, NU, NR}
+			DynamicImplicitRungeKutta<Real> {GaussLegendreMethod {2}, NX, NZ, NU, NR}
 		);
 	}
 
 
-	TEST_F(MassSpringDamperTest, testGaussLegendre2LeastSquaresLagrangeTerm)
+	TEST_F(MassSpringDamperTest, testGaussLegendre2LeastSquaresLagrangeTermDynamic)
 	{
 		testIntegrateLeastSquaresLagrangeTerm(
-			ImplicitRungeKutta<Real> {GaussLegendreMethod {2}, NX, NZ, NU, NR}
+			DynamicImplicitRungeKutta<Real> {GaussLegendreMethod {2}, NX, NZ, NU, NR}
 		);
 	}
 
 
-	TEST_F(MassSpringDamperTest, testStaticGaussLegendre2)
+	TEST_F(MassSpringDamperTest, testGaussLegendre2Static)
 	{
 		testIntegrate(
 			StaticImplicitRungeKutta<Real, 2, NX, NZ, NU, NR> {GaussLegendreMethod {2}}
@@ -46,7 +46,7 @@ namespace tmpc :: testing
 	}
 
 
-	TEST_F(MassSpringDamperTest, testStaticGaussLegendre2Sensitivities)
+	TEST_F(MassSpringDamperTest, testGaussLegendre2SensitivitiesStatic)
 	{
 		testIntegrateWithSensitivities(
 			StaticImplicitRungeKutta<Real, 2, NX, NZ, NU, NR> {GaussLegendreMethod {2}}
@@ -54,7 +54,7 @@ namespace tmpc :: testing
 	}
 
 
-	TEST_F(MassSpringDamperTest, testStaticGaussLegendre2LeastSquaresLagrangeTerm)
+	TEST_F(MassSpringDamperTest, testGaussLegendre2LeastSquaresLagrangeTermStatic)
 	{
 		testIntegrateLeastSquaresLagrangeTerm(
 			StaticImplicitRungeKutta<Real, 2, NX, NZ, NU, NR> {GaussLegendreMethod {2}}

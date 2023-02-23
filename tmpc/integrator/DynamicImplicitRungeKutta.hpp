@@ -15,17 +15,19 @@ namespace tmpc
 	 */
 
 	/**
-	 * \brief Implicit Runge-Kutta integrator.
+	 * \brief Implicit Runge-Kutta integrator for dynamically-sized problem.
 	 * \ingroup integrators
+	 *
+	 * @tparam Real real number type.
 	 *
 	 */
 	template <typename Real>
-	class ImplicitRungeKutta
-	:	public ImplicitIntegrator<ImplicitRungeKutta<Real>>
+	class DynamicImplicitRungeKutta
+	:	public ImplicitIntegrator<DynamicImplicitRungeKutta<Real>>
 	{
 	public:
 		template <typename Method>
-		ImplicitRungeKutta(Method const& method, size_t nx, size_t nz, size_t nu, size_t ny = 0)
+		DynamicImplicitRungeKutta(Method const& method, size_t nx, size_t nz, size_t nu, size_t ny = 0)
 		:	nx_(nx)
 		,	nz_(nz)
 		,	nw_(nx + nz)
