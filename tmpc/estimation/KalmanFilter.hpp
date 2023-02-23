@@ -98,7 +98,7 @@ namespace tmpc
         void predict(blaze::Vector<VT, blaze::columnVector> const& x_next, blaze::Matrix<MT, SO> const& A)
         {
             stateEstimate_ = x_next;
-            stateCovariance_ = ~A * stateCovariance_ * trans(~A) + processNoiseCovariance_;
+            stateCovariance_ = *A * stateCovariance_ * trans(*A) + processNoiseCovariance_;
         }
 
 
@@ -110,8 +110,8 @@ namespace tmpc
         template <typename MT1, bool SO1, typename MT2, bool SO2, typename VT>
         void predict(blaze::Matrix<MT1, SO1> const& A, blaze::Matrix<MT2, SO2> const& B, blaze::Vector<VT, blaze::columnVector> const& u)
         {
-            stateEstimate_ = ~A * stateEstimate_ + ~B * ~u;
-            stateCovariance_ = ~A * stateCovariance_ * trans(~A) + processNoiseCovariance_;
+            stateEstimate_ = *A * stateEstimate_ + *B * *u;
+            stateCovariance_ = *A * stateCovariance_ * trans(*A) + processNoiseCovariance_;
         }
 
 
@@ -124,12 +124,12 @@ namespace tmpc
         {
             // TODO: performance of this code can definitely be improved by avoiding temporary subexpressions
             // and using proper LAPACK routines.
-            S_ = measurementNoiseCovariance_ + ~C * stateCovariance_ * trans(~C);
+            S_ = measurementNoiseCovariance_ + *C * stateCovariance_ * trans(*C);
             llh(S_, S_chol_);
 
             // Use the Cholesky decomposition of S to multiply with inv(S).
-            // K_ = stateCovariance_ * trans(~C) * inv(S_);
-            K_ = stateCovariance_ * trans(~C);
+            // K_ = stateCovariance_ * trans(*C) * inv(S_);
+            K_ = stateCovariance_ * trans(*C);
             K_ *= inv(trans(S_chol_));
             K_ *= inv(S_chol_);
 
@@ -138,7 +138,7 @@ namespace tmpc
             // trsm(S_chol_, K_, CblasLeft, CblasLower, Real {1.});
             // trsm(S_chol_, K_, CblasRight, CblasLower, Real {1.});
 
-            stateEstimate_ += K_ * ~y;
+            stateEstimate_ += K_ * *y;
 
             // Use the Cholesky decomposition of S to enforce symmetry by putting the expression in the form A*A^T.
             stateCovariance_ -= K_ * S_chol_ * trans(K_ * S_chol_);
@@ -172,7 +172,7 @@ namespace tmpc
             return S_;
         }
 
-        
+
     private:
         size_t const nx_;
         size_t const ny_;

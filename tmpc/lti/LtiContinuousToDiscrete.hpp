@@ -8,7 +8,7 @@ namespace tmpc
     /// @brief Convert continuous time linear state space dynamics to discrete time.
     ///
     /// For the formulas, look, for example, here: http://www.engr.iupui.edu/~skoskie/ECE595_f05/handouts/discretization.pdf
-    /// The idea of the single matrix exponential algorithm is taken from 
+    /// The idea of the single matrix exponential algorithm is taken from
     /// https://github.com/scipy/scipy/blob/f07bfba/scipy/signal/lti_conversion.py#L449
     ///
     template <typename Real>
@@ -33,8 +33,8 @@ namespace tmpc
 
             work_ = matexp(time_step * work_);
 
-            ~Ad = submatrix(work_, 0, 0, nx_, nx_);
-            ~Bd = submatrix(work_, 0, nx_, nx_, nu_);
+            *Ad = submatrix(work_, 0, 0, nx_, nx_);
+            *Bd = submatrix(work_, 0, nx_, nx_, nu_);
         }
 
 
