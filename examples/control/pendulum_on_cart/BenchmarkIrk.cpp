@@ -36,7 +36,7 @@ static void BM_irkWithSensitivities(::benchmark::State& state)
     blaze::StaticMatrix<double, NX, NX + NU> Sxf;
 
     for (auto _ : state)
-        irk(dae, dae_s, 0., 0.01, x0, Sx, u, xf, Sxf);
+        tmpc::integrate(irk, dae, dae_s, 0., 0.01, 3, x0, Sx, u, xf, Sxf);
 }
 
 BENCHMARK(BM_irkWithSensitivities);
