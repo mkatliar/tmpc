@@ -266,7 +266,12 @@ namespace tmpc :: testing
 			auto const& k = k_;
 			auto const& kappa = kappa_;
 
-			resize(f, NX);
+			// TODO: restore resize() after this issue is fixed:
+			// https://bitbucket.org/blaze-lib/blaze/issues/456/resize-of-a-submatrix
+			// resize(f, NX);
+			if (size(f) != NX)
+				TMPC_THROW_EXCEPTION(std::invalid_argument {"Invalid vector size"});
+
 			(*f)[0] = (*x)[1] - (*xdot)[0];
 			(*f)[1] = -k * (*x)[0] - 2. * kappa * (*x)[1] + (*u)[0] - (*xdot)[1];
 
@@ -301,7 +306,12 @@ namespace tmpc :: testing
 			if (size(xdot) != NX || size(x) != NX || size(z) != NZ || size(u) != NU)
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
 
-			resize(Sf, NX, NX + NU);
+			// TODO: restore resize() after this issue is fixed:
+			// https://bitbucket.org/blaze-lib/blaze/issues/456/resize-of-a-submatrix
+			// resize(Sf, NX, NX + NU);
+			if (rows(Sf) != NX || columns(Sf) != NX + NU)
+				TMPC_THROW_EXCEPTION(std::invalid_argument {"Invalid matrix size"});
+
 			*Sf = {
 				{(*Sx)(1, 0), (*Sx)(1, 1), (*Sx)(1, 2)},
 				{-k_ * (*Sx)(0, 0) - 2. * kappa_ * (*Sx)(1, 0),

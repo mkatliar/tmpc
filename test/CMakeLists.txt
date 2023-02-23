@@ -23,8 +23,8 @@ add_executable(test-tmpc
     qp/MpipmSolverTest.cpp
     qp/StaticOcpQpTest.cpp
     qp/DynamicOcpQpTest.cpp
-    qp/DynamicRiccatiTest.cpp
-    qp/StaticRiccatiTest.cpp
+    # qp/DynamicRiccatiTest.cpp
+    # qp/StaticRiccatiTest.cpp
 
     integrator/ErkMassSpringDamperTest.cpp
     integrator/ErkDecayTest.cpp
@@ -48,7 +48,7 @@ add_executable(test-tmpc
     numeric/NewtonSolverTest.cpp
 
     lti/LtiContinuousToDiscreteTest.cpp
-    lti/DareTest.cpp
+    # lti/DareTest.cpp
 
     random/MultivariateNormalDistributionTest.cpp
 

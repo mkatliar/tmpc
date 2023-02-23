@@ -1,4 +1,7 @@
+#include "tmpc/Exception.hpp"
+#include <stdexcept>
 #include <tmpc/integrator/ImplicitRungeKutta.hpp>
+#include <tmpc/integrator/StaticImplicitRungeKutta.hpp>
 #include <tmpc/integrator/BackwardEulerMethod.hpp>
 #include <tmpc/integrator/GaussLegendreMethod.hpp>
 
@@ -30,14 +33,11 @@ namespace tmpc :: testing
 		}
 
 
-		template <typename Method>
-		void testIntegrate(Method const& method, double abs_tol, double rel_tol)
+		template <typename Integrator>
+		void testIntegrate(Integrator const& integrator, double abs_tol, double rel_tol)
 		{
-			ImplicitRungeKutta<Real> irk(method, NX, NZ, NU);
-			irk.warmStart(true);
-
 			VecX xf;
-			integrate(irk,
+			integrate(integrator,
 				[this] (auto&&... args) { this->implicitDae(std::forward<decltype(args)>(args)...); },
 				0., T_, numSteps_, x0_, u_, xf
 			);
@@ -46,15 +46,12 @@ namespace tmpc :: testing
 		}
 
 
-		template <typename Method>
-		void testIntegrateWithSensitivities(Method const& method, double abs_tol, double rel_tol)
+		template <typename Integrator>
+		void testIntegrateWithSensitivities(Integrator const& integrator, double abs_tol, double rel_tol)
 		{
-			ImplicitRungeKutta<Real> irk(method, NX, NZ, NU);
-			irk.warmStart(true);
-
 			VecX xf;
 			blaze::DynamicMatrix<Real> Sf(NX, NX + NU);
-			integrate(irk,
+			integrate(integrator,
 				[this] (auto&&... args) { this->implicitDae(std::forward<decltype(args)>(args)...); },
 				[this] (auto&&... args) { this->implicitDaeSensitivity(std::forward<decltype(args)>(args)...); },
 				0., T_, numSteps_, x0_, S_, u_, xf, Sf
@@ -65,19 +62,16 @@ namespace tmpc :: testing
 		}
 
 
-		template <typename Method>
-		void testIntegrateLeastSquaresLagrangeTerm(Method const& method, double abs_tol, double rel_tol)
+		template <typename Integrator>
+		void testIntegrateLeastSquaresLagrangeTerm(Integrator const& integrator, double abs_tol, double rel_tol)
 		{
-			ImplicitRungeKutta<Real> irk(method, NX, NZ, NU, NR);
-			irk.warmStart(true);
-
 			blaze::DynamicVector<Real> xf(NX);
 			blaze::DynamicMatrix<Real> Sf(NX, NX + NU);
 			Real l = 0.;
 			blaze::DynamicVector<Real> g(NX + NU, 0.);
 			blaze::DynamicMatrix<Real> H(NX + NU, NX + NU, 0.);
 
-			integrate(irk,
+			integrate(integrator,
 				[this] (auto&&... args) { this->implicitDae(std::forward<decltype(args)>(args)...); },
 				[this] (auto&&... args) { this->implicitDaeSensitivity(std::forward<decltype(args)>(args)...); },
 				[this] (auto&&... args) { this->residual(std::forward<decltype(args)>(args)...); },
@@ -184,9 +178,15 @@ namespace tmpc :: testing
 			blaze::Matrix<MT2, SO2>& Sf) const
 		{
 			if (size(xdot) != NX || size(x) != NX || size(z) != NZ || size(u) != NU)
-				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
+				TMPC_THROW_EXCEPTION(std::invalid_argument {"Invalid vector size"});
 
-			resize(Sf, NX + NZ, NX + NU);
+			// The resize() function might not work for submatrices:
+			// https://bitbucket.org/blaze-lib/blaze/issues/456/resize-of-a-submatrix
+			// resize(Sf, NX + NZ, NX + NU);
+			// We replace it by dimension check.
+			if (rows(Sf) != NX + NZ || columns(Sf) != NX + NU)
+				TMPC_THROW_EXCEPTION(std::invalid_argument {"Invalid matrix size"});
+
 			*Sf = {
 				{0.},
 				{(*Sx)(0, 0)}
@@ -232,30 +232,90 @@ namespace tmpc :: testing
 
 	TEST_F(IrkSimpleDaeTest, testBackwardEuler)
 	{
-		testIntegrate(BackwardEulerMethod {}, 0., 0.007);
+		ImplicitRungeKutta<Real> irk {BackwardEulerMethod {}, NX, NZ, NU};
+		irk.warmStart(true);
+
+		testIntegrate(irk, 0., 0.007);
 	}
 
 
 	TEST_F(IrkSimpleDaeTest, testGaussLegendre2)
 	{
-		testIntegrate(GaussLegendreMethod {2}, 0., 1e-7);
+		ImplicitRungeKutta<Real> irk {GaussLegendreMethod {2}, NX, NZ, NU};
+		irk.warmStart(true);
+
+		testIntegrate(irk, 0., 1e-7);
 	}
 
 
 	TEST_F(IrkSimpleDaeTest, testGaussLegendre3)
 	{
-		testIntegrate(GaussLegendreMethod {3}, 0., 1e-12);
+		ImplicitRungeKutta<Real> irk {GaussLegendreMethod {3}, NX, NZ, NU};
+		irk.warmStart(true);
+
+		testIntegrate(irk, 0., 1e-12);
 	}
 
 
 	TEST_F(IrkSimpleDaeTest, testGaussLegendre3Sensitivities)
 	{
-		testIntegrateWithSensitivities(GaussLegendreMethod {3}, 0., 1e-12);
+		ImplicitRungeKutta<Real> irk {GaussLegendreMethod {3}, NX, NZ, NU};
+		irk.warmStart(true);
+
+		testIntegrateWithSensitivities(irk, 0., 1e-12);
 	}
 
 
 	TEST_F(IrkSimpleDaeTest, testGaussLegendre3LeastSquaresLagrangeTerm)
 	{
-		testIntegrateLeastSquaresLagrangeTerm(GaussLegendreMethod {3}, 0., 1e-12);
+		ImplicitRungeKutta<Real> irk {GaussLegendreMethod {3}, NX, NZ, NU, NR};
+		irk.warmStart(true);
+
+		testIntegrateLeastSquaresLagrangeTerm(irk, 0., 1e-12);
+	}
+
+
+	TEST_F(IrkSimpleDaeTest, testStaticBackwardEuler)
+	{
+		StaticImplicitRungeKutta<Real, 1, NX, NZ, NU> irk {BackwardEulerMethod {}};
+		irk.warmStart(true);
+
+		testIntegrate(irk, 0., 0.007);
+	}
+
+
+	TEST_F(IrkSimpleDaeTest, testStaticGaussLegendre2)
+	{
+		StaticImplicitRungeKutta<Real, 2, NX, NZ, NU> irk {GaussLegendreMethod {2}};
+		irk.warmStart(true);
+
+		testIntegrate(irk, 0., 1e-7);
+	}
+
+
+	TEST_F(IrkSimpleDaeTest, testStaticGaussLegendre3)
+	{
+		StaticImplicitRungeKutta<Real, 3, NX, NZ, NU> irk {GaussLegendreMethod {3}};
+		irk.warmStart(true);
+
+		testIntegrate(irk, 0., 1e-12);
+	}
+
+
+	TEST_F(IrkSimpleDaeTest, testStaticGaussLegendre3Sensitivities)
+	{
+		StaticImplicitRungeKutta<Real, 3, NX, NZ, NU> irk {GaussLegendreMethod {3}};
+		irk.warmStart(true);
+
+		testIntegrateWithSensitivities(irk, 0., 1e-12);
+	}
+
+
+	TEST_F(IrkSimpleDaeTest, testStaticGaussLegendre3LeastSquaresLagrangeTerm)
+	{
+		StaticImplicitRungeKutta<Real, 3, NX, NZ, NU, NR> irk {GaussLegendreMethod {3}};
+		irk.warmStart(true);
+
+		testIntegrateLeastSquaresLagrangeTerm(irk, 0., 1e-12);
 	}
 }

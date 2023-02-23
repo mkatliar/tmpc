@@ -1,4 +1,5 @@
 #include <tmpc/integrator/ImplicitRungeKutta.hpp>
+#include <tmpc/integrator/StaticImplicitRungeKutta.hpp>
 #include <tmpc/integrator/BackwardEulerMethod.hpp>
 #include <tmpc/integrator/GaussLegendreMethod.hpp>
 
@@ -13,16 +14,16 @@ namespace tmpc :: testing
 	{
 	protected:
 		using Real = double;
+		static size_t constexpr NX = 1;
+		static size_t constexpr NZ = 0;
+		static size_t constexpr NU = 1;
 
 
-		template <typename Method>
-		void testIntegrate(Method const& method, double abs_tol, double rel_tol)
+		template <typename Integrator>
+		void testIntegrate(Integrator const& integrator, double abs_tol, double rel_tol)
 		{
-			size_t const NX = 1, NZ = 0, NU = 1;
 			using VecX = blaze::StaticVector<Real, NX, blaze::columnVector>;
 			using VecU = blaze::StaticVector<Real, NU, blaze::columnVector>;
-			
-			ImplicitRungeKutta<Real> irk(method, NX, NZ, NU);
 
 			auto ode = [] (Real t, auto const& xdot, auto const& x, auto const& z,
 				auto const& u, auto& f, auto& Jxdot, auto& Jx, auto& Jz)
@@ -37,27 +38,45 @@ namespace tmpc :: testing
 			VecU const u {2.};
 			Real const h = 0.05;
 			VecX x1;
-			irk(ode, t0, h, x0, u, x1);
+			integrator(ode, t0, h, x0, u, x1);
 
 			TMPC_EXPECT_APPROX_EQ(x1, x0 + u * (pow(t0 + h, 2) - pow(t0, 2)) / 2., abs_tol, rel_tol);
 		}
 	};
-	
+
 
 	TEST_F(IrkSimpleTimeDependentOdeTest, testBackwardEuler)
 	{
-		testIntegrate(BackwardEulerMethod(), 0., 0.001);
+		testIntegrate(ImplicitRungeKutta<Real> {BackwardEulerMethod {}, NX, NZ, NU}, 0., 0.001);
 	}
 
 
 	TEST_F(IrkSimpleTimeDependentOdeTest, testGaussLegendre2)
 	{
-		testIntegrate(GaussLegendreMethod(2), 0., 1e-14);
+		testIntegrate(ImplicitRungeKutta<Real> {GaussLegendreMethod {2}, NX, NZ, NU}, 0., 1e-14);
 	}
 
 
 	TEST_F(IrkSimpleTimeDependentOdeTest, testGaussLegendre3)
 	{
-		testIntegrate(GaussLegendreMethod(3), 0., 1e-17);
+		testIntegrate(ImplicitRungeKutta<Real> {GaussLegendreMethod {3}, NX, NZ, NU}, 0., 1e-17);
+	}
+
+
+	TEST_F(IrkSimpleTimeDependentOdeTest, testBackwardEulerStatic)
+	{
+		testIntegrate(StaticImplicitRungeKutta<Real, 1, NX, NZ, NU> {BackwardEulerMethod {}}, 0., 0.001);
+	}
+
+
+	TEST_F(IrkSimpleTimeDependentOdeTest, testGaussLegendre2Static)
+	{
+		testIntegrate(StaticImplicitRungeKutta<Real, 2, NX, NZ, NU> {GaussLegendreMethod {2}}, 0., 1e-14);
+	}
+
+
+	TEST_F(IrkSimpleTimeDependentOdeTest, testGaussLegendre3Static)
+	{
+		testIntegrate(StaticImplicitRungeKutta<Real, 3, NX, NZ, NU> {GaussLegendreMethod {3}}, 0., 1e-17);
 	}
 }

@@ -2,6 +2,7 @@
 
 #include <tmpc/integrator/ExplicitIntegrator.hpp>
 #include <tmpc/integrator/ImplicitIntegrator.hpp>
+#include <tmpc/Exception.hpp>
 #include <tmpc/Testing.hpp>
 
 
@@ -235,7 +236,12 @@ namespace tmpc :: testing
 			if (size(xdot) != NX || size(x) != NX || size(z) != NZ || size(u) != NU)
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
 
-			resize(f, NX);
+			// TODO: restore resize() after this issue is fixed:
+			// https://bitbucket.org/blaze-lib/blaze/issues/456/resize-of-a-submatrix
+			// resize(f, NX);
+			if (size(f) != NX)
+				TMPC_THROW_EXCEPTION(std::invalid_argument {"Invalid vector size"});
+
 			(*f)[0] = -(*u)[0] * (*x)[0] - (*xdot)[0];
 
 			*Jxdot = -blaze::IdentityMatrix<Real>(NX);
@@ -268,7 +274,12 @@ namespace tmpc :: testing
 			if (size(xdot) != NX || size(x) != NX || size(z) != NZ || size(u) != NU)
 				TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid vector size"));
 
-			resize(Sf, NX, NX + NU);
+			// TODO: restore resize() after this issue is fixed:
+			// https://bitbucket.org/blaze-lib/blaze/issues/456/resize-of-a-submatrix
+			// resize(Sf, NX, NX + NU);
+			if (rows(Sf) != NX || columns(Sf) != NX + NU)
+				TMPC_THROW_EXCEPTION(std::invalid_argument {"Invalid matrix size"});
+
 			*Sf = {
 				{-(*u)[0] * (*Sx)(0, 0), -(*u)[0] * (*Sx)(0, 1) - (*x)[0]}
 			};

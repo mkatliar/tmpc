@@ -78,7 +78,7 @@ namespace tmpc
             }
 
             if (!(residualMaxNorm_ < residualTolerance_))
-                TMPC_THROW_EXCEPTION(std::runtime_error("Max number of iteration reached but solution not found"));
+                TMPC_THROW_EXCEPTION(std::runtime_error("Max number of iterations reached but solution not found"));
         }
 
 
