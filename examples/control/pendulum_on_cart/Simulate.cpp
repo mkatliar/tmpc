@@ -16,9 +16,7 @@
 #include "CasadiImplicitDae.hpp"
 #include "CasadiImplicitDaeS.hpp"
 
-#include <blaze/math/dense/StaticVector.h>
-#include <blaze/math/views/Forward.h>
-#include <tmpc/integrator/ImplicitRungeKutta.hpp>
+#include <tmpc/integrator/StaticImplicitRungeKutta.hpp>
 #include <tmpc/integrator/GaussRadauIIAMethod.hpp>
 
 #include <iostream>
@@ -32,7 +30,7 @@ int main(int, char **)
 
     CasadiImplicitDae dae;
     CasadiImplicitDaeS dae_s;
-    tmpc::ImplicitRungeKutta<double> irk {tmpc::GaussRadauIIAMethod {3}, NX, NZ, NU};
+    tmpc::StaticImplicitRungeKutta<double, 3, NX, NZ, NU> irk {tmpc::GaussRadauIIAMethod {3}};
 
     blaze::StaticVector<double, NX> const x0 {0.0, M_PI + 1., 0.0, 0.0};
     blaze::StaticVector<double, NU> const u {0.};
