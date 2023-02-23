@@ -29,19 +29,19 @@ namespace tmpc
         BLAZE_CONSTRAINT_MUST_NOT_BE_UPPER_MATRIX_TYPE( MT2 );
         BLAZE_CONSTRAINT_MUST_BE_BLAS_COMPATIBLE_TYPE( blaze::ElementType_t<MT2> );
 
-        if( !isSquare( ~A ) ) {
+        if( !isSquare( *A ) ) {
             BLAZE_THROW_INVALID_ARGUMENT( "Invalid non-square matrix provided" );
         }
 
-        const size_t n( (~A).rows() );
+        const size_t n( (*A).rows() );
 
-        if( ( !blaze::IsResizable_v<MT2> && ( (~L).rows() != n || (~L).columns() != n ) ) ) {
+        if( ( !blaze::IsResizable_v<MT2> && ( (*L).rows() != n || (*L).columns() != n ) ) ) {
             BLAZE_THROW_INVALID_ARGUMENT( "Dimensions of fixed size matrix do not match" );
         }
 
         // Copy A to L
-        decltype(auto) l( derestrict( ~L ) );
-        l = ~A;
+        decltype(auto) l( derestrict( *L ) );
+        l = *A;
 
         // Solve in-place
         llh(l);
@@ -58,30 +58,30 @@ namespace tmpc
         BLAZE_CONSTRAINT_MUST_NOT_BE_LOWER_MATRIX_TYPE( MT );
         BLAZE_CONSTRAINT_MUST_BE_BLAS_COMPATIBLE_TYPE( blaze::ElementType_t<MT> );
 
-        if( !isSquare( ~A ) ) {
+        if( !isSquare( *A ) ) {
             BLAZE_THROW_INVALID_ARGUMENT( "Invalid non-square matrix provided" );
         }
 
-        const size_t n( (~A).rows() );
+        const size_t n( (*A).rows() );
 
         using Scalar = blaze::ElementType_t<MT>;
 
         // Copy A to L
-        decltype(auto) l( derestrict( ~A ) );
+        decltype(auto) l( derestrict( *A ) );
 
         for (size_t k = 0; k < n; ++k)
         {
             size_t const rs = n - k - 1; // remaining size
-        
+
             auto A01 = submatrix(l, 0, k, k, 1);
             auto A21 = submatrix(l, k + 1, k, rs, 1);
             auto const A10 = submatrix(l, k, 0, 1, k);
             auto const A20 = submatrix(l, k + 1, 0, rs, k);
 
             reset(A01);
-        
+
             Scalar x = l(k, k);
-            if (k > 0) 
+            if (k > 0)
                 x -= sqrNorm(A10);
 
             if (x <= 0)
@@ -97,7 +97,7 @@ namespace tmpc
             //
             // A21 -= A20 * ctrans(A10);
             // A21 -= trans(A10 * ctrans(A20));
-            // 
+            //
             for (size_t i = 0; i < rs; ++i)
             {
                 A21(i, 0) -= row(A20, i) * ctrans(row(A10, 0));
