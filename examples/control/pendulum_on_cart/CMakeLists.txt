@@ -1,4 +1,4 @@
-find_package(BLAS)
+find_package(LAPACK REQUIRED)
 
 #
 # System model library
@@ -14,6 +14,7 @@ add_library(example-pendulum_on_cart-model STATIC
 
 target_link_libraries(example-pendulum_on_cart-model
     tmpc-casadi
+    LAPACK::LAPACK
 )
 
 add_executable(example-pendulum_on_cart-simulate
@@ -28,7 +29,6 @@ target_include_directories(example-pendulum_on_cart-model
 
 target_link_libraries(example-pendulum_on_cart-simulate
     example-pendulum_on_cart-model
-    BLAS::BLAS
 )
 
 # if (TMPC_WITH_BENCHMARK)
@@ -43,6 +43,5 @@ target_link_libraries(example-pendulum_on_cart-simulate
     target_link_libraries(example-pendulum_on_cart-benchmark
         example-pendulum_on_cart-model
         benchmark::benchmark
-        BLAS::BLAS
     )
 # endif ()
