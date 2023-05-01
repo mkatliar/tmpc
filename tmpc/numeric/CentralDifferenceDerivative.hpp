@@ -38,15 +38,15 @@ namespace tmpc
 
             for (size_t i = 0; i < nX_; ++i)
             {
-                x_[i] = (~x)[i] - (~delta)[i];
+                x_[i] = (*x)[i] - (*delta)[i];
                 yMinus_ = f(x_);
 
-                x_[i] = (~x)[i] + (~delta)[i];
+                x_[i] = (*x)[i] + (*delta)[i];
                 yPlus_ = f(x_);
 
-                x_[i] = (~x)[i];
+                x_[i] = (*x)[i];
 
-                column(J_, i) = (yPlus_ - yMinus_) / (2 * (~delta)[i]);
+                column(J_, i) = (yPlus_ - yMinus_) / (2 * (*delta)[i]);
             }
 
             return J_;
