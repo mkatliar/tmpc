@@ -7,9 +7,7 @@ namespace tmpc :: testing
     using Real = double;
     using Mat = blaze::DynamicMatrix<Real>;
     using Vec = blaze::DynamicVector<Real, blaze::columnVector>;
-    
-    using blaze::columnVector;
-                
+
     template <size_t N, bool TF = blaze::columnVector>
     using StaticVector = blaze::StaticVector<Real, N, TF>;
 
@@ -131,7 +129,7 @@ namespace tmpc :: testing
         EXPECT_EQ(kalman_.measurementNoiseCovariance(), (blaze::ZeroMatrix<Real>(NY, NY)));
     }
 
-    
+
     TEST_F(KalmanFilterTest, testUpdate)
     {
         Vec const y0 = C_ * x0_ + Vec {-0.2979, -0.1403} - C_ * kalman_.stateEstimate();
@@ -181,7 +179,7 @@ namespace tmpc :: testing
         static size_t constexpr NW = 1;
         static size_t constexpr NH = 2;
 
-                
+
         std::vector<StaticVector<NH>> const y_rec {
             StaticVector<NH> {-1.7889e-05, -1.30424e-05},
             StaticVector<NH> {-0.00022692, -0.000167837},
@@ -240,7 +238,7 @@ namespace tmpc :: testing
             {-100,            0,         -100,            0,            0},
             {   1,            0,            0,            0,            0}
         };
-        
+
         // Create and prepare estimator.
         // EkfEstimator estimator(timeStepInSeconds);
         tmpc::KalmanFilter<Real> kalman(NX + NW, NH);
