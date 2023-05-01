@@ -40,7 +40,7 @@ namespace tmpc :: testing
         Dare<double> dare(5, 2);
         dare(A, B, Q, R, X);
         // dare.dump(std::cout);
-        
+
         // Check against the solution obtained with MATLAB's dare() function.
         EXPECT_TRUE(approxEqual(X, blaze::DynamicMatrix<double> {
             {4.124901922184289e+00,     2.857241032445132e+00,     3.106840810022587e+00,     2.997920104991082e+00,     3.182746822491208e+00},
@@ -51,7 +51,7 @@ namespace tmpc :: testing
         }, 0., 1e-14));
 
         // Substitute the solution into the Riccati equation and check the residual.
-        EXPECT_TRUE(approxEqual(evaluate(trans(A) * X * A - X - trans(A) * X * B * inv(trans(B) * X * B + R) * trans(B) * X * A + Q),
-            blaze::ZeroMatrix<double>(5, 5), 1e-12));
+        TMPC_EXPECT_APPROX_EQ(evaluate(trans(A) * X * A - X - trans(A) * X * B * inv(trans(B) * X * B + R) * trans(B) * X * A + Q),
+            blaze::ZeroMatrix<double>(5, 5), 1e-12, 0.);
     }
 }
