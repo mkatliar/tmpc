@@ -7,10 +7,10 @@
 #include <tmpc/math/Trsv.hpp>
 #include <tmpc/Exception.hpp>
 
-#include <blazefeo/math/dense/Syrk.hpp>
-#include <blazefeo/math/dense/Potrf.hpp>
-#include <blazefeo/math/dense/Trmm.hpp>
-#include <blazefeo/math/dense/Trsv.hpp>
+#include <blast/math/dense/Syrk.hpp>
+#include <blast/math/dense/Potrf.hpp>
+#include <blast/math/dense/Trmm.hpp>
+#include <blast/math/dense/Trsv.hpp>
 
 #include <vector>
 
@@ -75,7 +75,7 @@ namespace tmpc
                     // TODO: tmpc::llh() segfaults here for matrices of size 9;
                     // using blaze::llh() as a workaround.
                     blaze::llh(qp.Q(u), Lcal);
-                    // blazefeo::potrf(qp.Q(u), derestrict(Lcal));
+                    // blast::potrf(qp.Q(u), derestrict(Lcal));
                 }
                 else
                 {
@@ -90,10 +90,10 @@ namespace tmpc
                     auto e = oe.begin();
 
                     // Alg 1 line 7
-                    blazefeo::trmmRightLower(1., trans(qp.BA(*e)), vertexData_[target(*e, graph_)].Lcal(), transD_);
+                    blast::trmmRightLower(1., trans(qp.BA(*e)), vertexData_[target(*e, graph_)].Lcal(), transD_);
 
                     // Alg 1 line 5, 8
-                    blazefeo::syrkLower(1., transD_, 1., qp.H(u), RSQ_tilde);
+                    blast::syrkLower(1., transD_, 1., qp.H(u), RSQ_tilde);
 
                     // ---------------------------
                     // Process remaining out edges
@@ -101,14 +101,14 @@ namespace tmpc
                     while (++e != oe.end())
                     {
                         // Alg 1 line 7
-                        blazefeo::trmmRightLower(1., trans(qp.BA(*e)), vertexData_[target(*e, graph_)].Lcal(), transD_);
+                        blast::trmmRightLower(1., trans(qp.BA(*e)), vertexData_[target(*e, graph_)].Lcal(), transD_);
 
                         // Alg 1 line 8
-                        blazefeo::syrkLower(1., transD_, 1., RSQ_tilde, RSQ_tilde);
+                        blast::syrkLower(1., transD_, 1., RSQ_tilde, RSQ_tilde);
                     }
 
                     // Alg 1 line 10
-                    blazefeo::potrf(RSQ_tilde, RSQ_tilde);
+                    blast::potrf(RSQ_tilde, RSQ_tilde);
                 }
             }
         }
@@ -149,7 +149,7 @@ namespace tmpc
                     }
 
                     // Alg 2 line 10
-                    blazefeo::trsvLeftLower(vd_u.Lambda(), r_tilde, vd_u.l_);
+                    blast::trsvLeftLower(vd_u.Lambda(), r_tilde, vd_u.l_);
 
                     // Alg 2 line 11
                     vd_u.p_ = q_tilde - vd_u.L_trans() * vd_u.l_;
@@ -171,16 +171,16 @@ namespace tmpc
 
                     // Solve P*x+p=0 by using Cholesky factor of P:
                     // \mathcal{L}*(\mathcal{L}^T*x)=-p
-                    blazefeo::trsvLeftLower(vd_u.Lcal(), -vd_u.p_, vd_u.p_);
+                    blast::trsvLeftLower(vd_u.Lcal(), -vd_u.p_, vd_u.p_);
                     decltype(auto) x_u = sol.x(u);
-                    blazefeo::trsvLeftUpper(trans(vd_u.Lcal()), vd_u.p_, x_u);
+                    blast::trsvLeftUpper(trans(vd_u.Lcal()), vd_u.p_, x_u);
                 }
 
                 // Alg 3 line 3
                 //
                 vd_u.l_ += trans(vd_u.L_trans()) * sol.x(u);
                 decltype(auto) u_u = sol.u(u);
-                blazefeo::trsvLeftUpper(trans(vd_u.Lambda()), -vd_u.l_, u_u);
+                blast::trsvLeftUpper(trans(vd_u.Lambda()), -vd_u.l_, u_u);
 
                 for (auto e : out_edges(u, graph_))
                 {

@@ -12,5 +12,5 @@ target_include_directories(tmpc-hpipm
 target_link_libraries(tmpc-hpipm
     PUBLIC tmpc
     PUBLIC ${HPIPM_STATIC_LIB}
-    PUBLIC blazefeo-blasfeo
+    PUBLIC blast-blasfeo
 )

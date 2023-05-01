@@ -5,11 +5,11 @@ find_package(Threads REQUIRED)
 #~~~~~~~~~~~~~~~~
 add_executable(bench-tmpc
     Main.cpp
-    
+
     math/Cholesky.cpp
     math/Trsv.cpp
     math/SyrkPotrf.cpp
-    
+
     # CondensingBench.cpp
     qp/DynamicClassicalRiccatiBench.cpp
     qp/DynamicFactorizedRiccatiBench.cpp
@@ -22,7 +22,7 @@ add_executable(bench-tmpc
 target_link_libraries(bench-tmpc
     tmpc
     benchmark
-    blazefeo-blasfeo
+    blast-blasfeo
     ${BLAS_LIBRARIES}
     ${LAPACK_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}

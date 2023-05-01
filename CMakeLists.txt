@@ -53,7 +53,7 @@ set(TMPC_WITH_CASADI ON CACHE BOOL "Build tmpc with CasADi generated function su
 # TMPC_WITH_JSON
 option(TMPC_WITH_JSON "Build tmpc with JSON support")
 
-add_subdirectory(blazefeo)
+add_subdirectory(blast)
 add_subdirectory(src)
 add_subdirectory(examples)
 

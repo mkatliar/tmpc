@@ -5,7 +5,7 @@
 #
 set(TMPC_INCLUDE_DIR ${PROJECT_INCLUDE_DIR}/tmpc)
 
-set (SRC    
+set (SRC
     ocp/OcpTree.cpp
     ocp/DynamicOcpSize.cpp
 
@@ -22,7 +22,7 @@ target_include_directories(tmpc
 target_link_libraries(tmpc
     PUBLIC Boost::exception
     PUBLIC blaze::blaze
-    PUBLIC blazefeo
+    PUBLIC blast
 )
 
 
