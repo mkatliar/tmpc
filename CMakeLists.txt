@@ -27,19 +27,14 @@ set(extern_libs ${qp_solvers})
 
 # Create TMPC_WITH_${lib} cached variables and find selected packages
 foreach (lib ${extern_libs})
-    set(TMPC_WITH_${lib} OFF CACHE BOOL "Link to ${lib}")
+    option(TMPC_WITH_${lib} "Link to ${lib}")
 
     if (TMPC_WITH_${lib})
         find_package(${lib} REQUIRED)
     endif ()
-
-    message(STATUS "TMPC_WITH_${lib}=${TMPC_WITH_${lib}}")
 endforeach ()
 
-# TODO: Eigen3 is required now, because some older tests depend on it.
-# This dependency must be removed in future.
-find_package(Eigen3 3.2.10 REQUIRED)
-find_package(blaze 3.6 REQUIRED)
+find_package(blaze 3.8 REQUIRED)
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
 
@@ -48,7 +43,7 @@ find_package(Boost REQUIRED COMPONENTS exception)
 
 
 # TMPC_WITH_CASADI
-set(TMPC_WITH_CASADI ON CACHE BOOL "Build tmpc with CasADi generated function support classes")
+option(TMPC_WITH_CASADI "Build tmpc with CasADi generated function support classes")
 
 # TMPC_WITH_JSON
 option(TMPC_WITH_JSON "Build tmpc with JSON support")
