@@ -41,27 +41,23 @@ find_package(LAPACK REQUIRED)
 # Find boost.
 find_package(Boost REQUIRED COMPONENTS exception)
 
-
-# TMPC_WITH_CASADI
 option(TMPC_WITH_CASADI "Build tmpc with CasADi generated function support classes")
-
-# TMPC_WITH_JSON
 option(TMPC_WITH_JSON "Build tmpc with JSON support")
+option(TMPC_WITH_EXAMPLES "Build tmpc examples")
+option(TMPC_WITH_TEST "Build tmpc tests")
+option(TMPC_WITH_BENCHMARK "Build tmpc benchmarks")
 
 add_subdirectory(blast)
 add_subdirectory(src)
-add_subdirectory(examples)
 
-# TMPC_WITH_TEST
-option(TMPC_WITH_TEST "Build tmpc tests")
+if (TMPC_WITH_EXAMPLES)
+    add_subdirectory(examples)
+endif ()
 
 if (TMPC_WITH_TEST)
     enable_testing()
     add_subdirectory(test)
 endif()
-
-# TMPC_WITH_BENCHMARK
-option(TMPC_WITH_BENCHMARK "Build tmpc benchmarks")
 
 if (TMPC_WITH_BENCHMARK)
     add_subdirectory(bench)
