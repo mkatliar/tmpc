@@ -1,6 +1,4 @@
 find_package(benchmark REQUIRED)
-find_package(Threads REQUIRED)
-
 
 #~~~~~~~~~~~~~~~~
 add_executable(bench-tmpc
@@ -21,11 +19,10 @@ add_executable(bench-tmpc
 
 target_link_libraries(bench-tmpc
     tmpc
-    benchmark
+    benchmark::benchmark
     blast-blasfeo
     ${BLAS_LIBRARIES}
     ${LAPACK_LIBRARIES}
-    ${CMAKE_THREAD_LIBS_INIT}
 )
 
 
