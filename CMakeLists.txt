@@ -38,9 +38,6 @@ find_package(blaze 3.8 REQUIRED)
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
 
-# Find boost.
-find_package(Boost REQUIRED COMPONENTS exception)
-
 option(TMPC_WITH_CASADI "Build tmpc with CasADi generated function support classes")
 option(TMPC_WITH_JSON "Build tmpc with JSON support")
 option(TMPC_WITH_EXAMPLES "Build tmpc examples")

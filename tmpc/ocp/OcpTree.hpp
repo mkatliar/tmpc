@@ -7,6 +7,7 @@
 #include <vector>
 #include <optional>
 #include <algorithm>
+#include <memory>
 
 
 namespace tmpc
@@ -24,7 +25,7 @@ namespace tmpc
 
 
         explicit OcpTree(std::initializer_list<degree_size_type> branching);
-        
+
 
         /// @brief Copy constructor
         OcpTree(OcpTree const&) = default;
@@ -41,12 +42,12 @@ namespace tmpc
         /// The size of the range is equal to the number of vertices,
         /// and the sum of branching factors should be equal to the number of vertices minus 1.
         ///
-        template <std::ranges::range Range>
+        template <std::ranges::sized_range Range>
         explicit OcpTree(Range const& branching);
 
 
         /// @brief Create a linear OcpTree with num_stages vertices.
-        ///    
+        ///
         explicit OcpTree(size_t num_stages);
 
 
@@ -75,7 +76,7 @@ namespace tmpc
         {
             return impl_ == other.impl_ ||
                 (impl_->firstChild_.size() == other.impl_->firstChild_.size()
-                && std::equal(impl_->firstChild_.begin(), impl_->firstChild_.end(), 
+                && std::equal(impl_->firstChild_.begin(), impl_->firstChild_.end(),
                     other.impl_->firstChild_.begin()));
         }
 
@@ -173,7 +174,7 @@ namespace tmpc
         auto outEdges(OcpVertex v) const
         {
             return views::iota(
-                OcpEdge {impl_->firstChild_.at(v) - 1}, 
+                OcpEdge {impl_->firstChild_.at(v) - 1},
                 OcpEdge {impl_->firstChild_.at(v + 1) - 1}
             );
         }
@@ -191,7 +192,7 @@ namespace tmpc
 
 
         /// @brief Number of scenarios containing given vertex.
-        /// 
+        ///
         /// @return number of paths from the root to a leaf node containing vertex \a v.
         auto scenarioCount(OcpVertex v) const
         {
@@ -200,7 +201,7 @@ namespace tmpc
 
 
         /// @brief Depth of a given vertex.
-        /// 
+        ///
         /// https://en.wikipedia.org/wiki/Glossary_of_graph_theory_terms#depth
         ///
         /// @return number of edges connecting vertex \a v to the root.
@@ -211,7 +212,7 @@ namespace tmpc
 
 
         /// @brief Child vertices of a given vertex.
-        /// 
+        ///
         /// https://en.wikipedia.org/wiki/Glossary_of_graph_theory_terms#child
         ///
         /// @return range of vertices to which there is an out-edge from \a v.
@@ -257,11 +258,11 @@ namespace tmpc
     /// The size of the range is equal to the number of vertices,
     /// and the sum of branching factors should be equal to the number of vertices minus 1.
     ///
-    template <std::ranges::range Range>
+    template <std::ranges::sized_range Range>
     inline OcpTree::OcpTree(Range const& branching)
     :   impl_ {std::make_shared<Impl>()}
     {
-        impl_->numVertices_ = static_cast<vertices_size_type>(size(branching));
+        impl_->numVertices_ = static_cast<vertices_size_type>(std::ranges::size(branching));
 
         // Check arguments
         if (impl_->numVertices_ == 0)
@@ -280,7 +281,7 @@ namespace tmpc
         impl_->leafVertices_.reserve(n_leaves);
 
         OcpVertex u {0}, v {1};
-        
+
         for (auto nc : branching)
         {
             if (v + nc > impl_->numVertices_)
@@ -314,7 +315,7 @@ namespace tmpc
         for (auto v : vertices() | views::reverse)
         {
             auto const kinder = children(v);
-            
+
             if (std::empty(kinder))
             {
                 impl_->scenarioCount_[v] = 1;
@@ -328,7 +329,7 @@ namespace tmpc
         }
     }
 
-    
+
     inline auto num_vertices(OcpTree const& g)
     {
         return g.numVertices();
@@ -360,8 +361,8 @@ namespace tmpc
     {
         return g.parentEdge(v) ? 1 : 0;
     }
-	
-	
+
+
 	inline auto out_degree(OcpVertex v, OcpTree const& g)
     {
         return g.outDegree(v);
@@ -378,11 +379,11 @@ namespace tmpc
     {
         return g.target(e);
     }
-	
+
 
     /// @brief Parent of a node.
     ///
-    /// Since OcpTree is always a tree, parent() is empty for the root 
+    /// Since OcpTree is always a tree, parent() is empty for the root
     /// and equals to source(in_edges(v, g), g) for non-root nodes.
     inline std::optional<OcpVertex> parent(OcpVertex v, OcpTree const& g)
     {
@@ -415,7 +416,7 @@ namespace tmpc
     inline auto siblings(OcpVertex v, OcpTree const& g)
     {
         auto const p = parent(v, g);
-        
+
         return p ? children(*p, g) : views::iota(v, v + 1);
     }
 

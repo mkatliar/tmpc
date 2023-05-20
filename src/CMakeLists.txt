@@ -20,7 +20,6 @@ target_include_directories(tmpc
 )
 
 target_link_libraries(tmpc
-    PUBLIC Boost::exception
     PUBLIC blaze::blaze
     PUBLIC blast
 )
