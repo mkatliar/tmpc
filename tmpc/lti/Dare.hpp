@@ -2,7 +2,7 @@
 
 #include <tmpc/Math.hpp>
 
-#include <boost/throw_exception.hpp>
+#include <tmpc/Exception.hpp>
 
 #include <iosfwd>
 #include <stdexcept>
@@ -150,12 +150,12 @@ namespace tmpc
 
             // Check solution asymmetry
             if (!eigenvalues_ok || asym > std::max(1e-3 * std::numeric_limits<Real>::epsilon(), 0.1 * l1Norm(*X12)))
-                BOOST_THROW_EXCEPTION(std::runtime_error(
+                TMPC_THROW_EXCEPTION(std::runtime_error(
                     "Could not (reliably) isolate stable invariant subspace of dimension " + std::to_string(nx_)));
 
             // Check accuracy
             if (asym > sqrt(std::numeric_limits<Real>::epsilon()))
-                BOOST_THROW_EXCEPTION(std::runtime_error("Riccati equation solution accuracy is not sufficient"));
+                TMPC_THROW_EXCEPTION(std::runtime_error("Riccati equation solution accuracy is not sufficient"));
         }
     };
 }

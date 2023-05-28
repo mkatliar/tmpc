@@ -31,11 +31,11 @@ namespace tmpc
         friend void put(BundlePropertyMap const& pm, key_type k, V const& val)
         {
             Value& ref = pm.bundleMap_[k].*pm.field_;
-            
+
             // TODO: get rid of this check for static vectors/matrices
             // and/or use noresize().
             if (shape(val) != shape(ref))
-                BOOST_THROW_EXCEPTION(std::invalid_argument("Invalid size of a vector or a matrix"));
+                TMPC_THROW_EXCEPTION(std::invalid_argument("Invalid size of a vector or a matrix"));
 
             ref = val;
         }

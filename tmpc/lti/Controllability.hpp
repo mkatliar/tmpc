@@ -4,7 +4,7 @@
 
 #include <blaze/Math.h>
 
-#include <boost/throw_exception.hpp>
+#include <tmpc/Exception.hpp>
 
 #include <stdexcept>
 
@@ -24,7 +24,7 @@ namespace tmpc
         auto const nu = columns(B);
 
         if (rows(A) != nx || columns(A) != nx)
-            BOOST_THROW_EXCEPTION(std::invalid_argument("Inconsistent matrix size"));
+            TMPC_THROW_EXCEPTION(std::invalid_argument("Inconsistent matrix size"));
 
         resize(~C, nx, nx * nu);
 
@@ -51,7 +51,7 @@ namespace tmpc
         auto const nx = rows(B);
 
         if (rows(A) != nx || columns(A) != nx)
-            BOOST_THROW_EXCEPTION(std::invalid_argument("Inconsistent matrix size"));
+            TMPC_THROW_EXCEPTION(std::invalid_argument("Inconsistent matrix size"));
 
         blaze::DynamicMatrix<ET> C;
         controllabilityMatrix(A, B, C);
