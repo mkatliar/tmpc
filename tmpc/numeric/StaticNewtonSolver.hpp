@@ -5,6 +5,7 @@
 #include <tmpc/Exception.hpp>
 
 #include <array>
+#include <limits>
 
 
 namespace tmpc
@@ -206,7 +207,7 @@ namespace tmpc
 		size_t maxIterations_ = 10;
         size_t functionEvaluations_ = 0;
 		Real residualMaxNorm_ = inf<Real>();
-        Real residualTolerance_ = 1e-10;
+        Real residualTolerance_ = 10 * std::numeric_limits<Real>::epsilon();
 
         // Backtracking alpha
         Real alpha_ = 1.;
