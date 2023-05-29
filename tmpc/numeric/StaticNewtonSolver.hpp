@@ -45,20 +45,11 @@ namespace tmpc
             functionEvaluations_ = 0;
 
             *xf = *x0;
-            fun(*xf, r_, J_);
+            evaluate(fun, *xf, r_, J_, monitor);
             factorizeJacobian();
-            ++functionEvaluations_;
 
-            for (iterations_ = 0; iterations_ <= maxIterations_; ++iterations_)
+            for (iterations_ = 0; (residualMaxNorm_ = maxNorm(r_)) >= residualTolerance_ && iterations_ < maxIterations_; ++iterations_)
 			{
-                residualMaxNorm_ = maxNorm(r_);
-
-                monitor(iterations_, std::as_const(*xf), std::as_const(r_), std::as_const(J_));
-
-                // Residual within tolerance; exit the loop.
-				if (residualMaxNorm_ < residualTolerance_)
-					break;
-
                 // Calculate search direction d(n)=-inv(J(n))*r(n)
                 jacobianSolve(r_, d_);
 
@@ -67,7 +58,7 @@ namespace tmpc
 
                 // Do backtracking search.
                 // alpha == 1. disables backtracking.
-                while (fun(x1_ = *xf + t * d_, r1_, J_), ++functionEvaluations_, alpha_ < 1. && !residualDecreased(r1_, r_))
+                while (evaluate(fun, x1_ = *xf + t * d_, r1_, J_, monitor), alpha_ < 1. && !residualDecreased(r1_, r_))
                     t *= alpha_;
                 factorizeJacobian();
 
@@ -76,8 +67,8 @@ namespace tmpc
                 r_ = r1_;
             }
 
-            if (!(residualMaxNorm_ < residualTolerance_))
-                TMPC_THROW_EXCEPTION(std::runtime_error {"Max number of iterations reached but solution not found"});
+            if (residualMaxNorm_ >= residualTolerance_)
+                TMPC_THROW_EXCEPTION(std::runtime_error {"Newton residual beyond tolerance after max number of iterations"});
         }
 
 
@@ -221,6 +212,16 @@ namespace tmpc
         Real alpha_ = 1.;
 
         mutable std::array<int, NX> ipiv_;
+
+
+        template <typename F, typename VT0, typename VT1, typename MT, typename Monitor>
+        requires blaze::IsDenseVector_v<VT0> && blaze::IsDenseVector_v<VT1> && blaze::IsDenseMatrix_v<MT>
+        void evaluate(F&& fun, VT0 const& x, VT1& r, MT& J, Monitor&& monitor)
+        {
+            fun(x, r, J);
+            ++functionEvaluations_;
+            monitor(iterations_, std::as_const(x), std::as_const(r), std::as_const(J));
+        }
 
 
         template <typename VT1, typename VT2, bool TF>
